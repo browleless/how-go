@@ -19,13 +19,13 @@ new Vue({
   render: h => h(App),
   created () {
     firebase.initializeApp({
-      apiKey: "AIzaSyBWRRoZ1dD1trQWBC_CIvgeQRTQFJ-CMoM",
-      authDomain: "howgo-c3b1f.firebaseapp.com",
-      databaseURL: "https://howgo-c3b1f.firebaseio.com",
-      projectId: "howgo-c3b1f",
-      storageBucket: "howgo-c3b1f.appspot.com",
-      messagingSenderId: "229012285253",
-      appId: "1:229012285253:web:dcc12e738d4ed891"
+      apiKey: "AIzaSyBPxJ-Fh41K9DiIjVPXz6-n4-c9gXSjlGc",
+      authDomain: "how-go-243507.firebaseapp.com",
+      databaseURL: "https://how-go-243507.firebaseio.com",
+      projectId: "how-go-243507",
+      storageBucket: "how-go-243507.appspot.com",
+      messagingSenderId: "857543360628",
+      appId: "1:857543360628:web:89cfc44d09d5993e"
     })
   },
   router,
