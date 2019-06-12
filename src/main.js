@@ -7,8 +7,8 @@ import GAuth from 'vue-google-oauth2'
 import * as firebase from 'firebase'
 
 const gauthOption = {
-  clientId: '157627819195-sud1fpsa8kc1bgekh6s69vlb03adql70.apps.googleusercontent.com',
-  scope: 'https://www.googleapis.com/auth/calendar',
+  clientId: '857543360628-rrmp7stavqroch9ccf7e4tu2a5m22cg6.apps.googleusercontent.com',
+  scope: 'https://www.googleapis.com/auth/calendar.events',
   prompt: 'select_account'
 }
 
@@ -19,13 +19,13 @@ new Vue({
   render: h => h(App),
   created () {
     firebase.initializeApp({
-      apiKey: "AIzaSyBVYVezJo3SaW6Vf5tTSTa_EtjVIeHOhdw",
-      authDomain: "how-go.firebaseapp.com",
-      databaseURL: "https://how-go.firebaseio.com",
-      projectId: "how-go",
-      storageBucket: "how-go.appspot.com",
-      messagingSenderId: "904627633830",
-      appId: "1:904627633830:web:526745d3580da259"
+      apiKey: "AIzaSyBWRRoZ1dD1trQWBC_CIvgeQRTQFJ-CMoM",
+      authDomain: "howgo-c3b1f.firebaseapp.com",
+      databaseURL: "https://howgo-c3b1f.firebaseio.com",
+      projectId: "howgo-c3b1f",
+      storageBucket: "howgo-c3b1f.appspot.com",
+      messagingSenderId: "229012285253",
+      appId: "1:229012285253:web:dcc12e738d4ed891"
     })
   },
   router,
