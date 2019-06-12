@@ -1,38 +1,6 @@
 <template>
   <v-app>
-    <v-navigation-drawer temporary absolute v-model="sideNav">
-      <v-list>
-        <v-list-tile 
-          v-for="item in menuItems" 
-          :key="item.title"
-          :to="item.link"
-          >
-          <v-list-tile-action>
-            <v-icon>{{ item.icon }}</v-icon>
-          </v-list-tile-action>
-          <v-list-tile-content>{{ item.title }}</v-list-tile-content>
-        </v-list-tile>
-      </v-list>
-    </v-navigation-drawer>
-    <v-toolbar>
-      <v-toolbar-side-icon
-        @click="sideNav = !sideNav"
-        class="hidden-sm-and-up"></v-toolbar-side-icon>
-      <v-toolbar-title>
-        <router-link to="/" tag="span" style="cursor: pointer">HowGo?</router-link>
-      </v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-toolbar-items class="hidden-xs-only">
-        <v-btn 
-          flat
-          v-for="item in menuItems" 
-          :key="item.title"
-          :to="item.link">
-          <v-icon left>{{ item.icon }}</v-icon>
-          {{ item.title }}
-        </v-btn>
-      </v-toolbar-items>
-    </v-toolbar>
+    <Navbar/>
     <main>
       <router-view></router-view>
     </main>
@@ -40,21 +8,12 @@
 </template>
 
 <script>
+import Navbar from './components/Navbar.vue'
+
 export default {
-  name: 'App',
+  name: "App",
   components: {
-  
-  },
-  data() {
-    return {
-      sideNav: false,
-      menuItems: [
-        { icon: 'room', title: 'Trips', link: '/trips' },
-        { icon: 'notifications_on', title: 'Reminders', link: '/reminders' },
-        { icon: 'person', title: 'Profile', link: '/profile' },
-        { icon: 'lock_open', title: 'Log In', link: '/login' }
-      ]
-    }
+    Navbar
   }
-}
+};
 </script>
