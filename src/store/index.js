@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import * as firebase from 'firebase'
 
 Vue.use(Vuex)
 
@@ -25,17 +26,55 @@ export const store = new Vuex.Store({
                 time: '0000'
             }
         ],
-        user: {
-            id: 'to be filled'
+        user: null,
+        gapiCalendarSwitch: null
+    },
+    mutations: {
+        setUser(state, payload) {
+            state.user = payload
+        },
+        setGapiCalendarSwitch(state, payload) {
+            state.gapiCalendarSwitch = payload
         }
     },
-    mutations: {},
-    actions: {},
+    actions: {
+        async signIn({ commit }, payload) {
+            // On success do something, refer to https://developers.google.com/api-client-library/javascript/reference/referencedocs#googleusergetid
+            const user = payload.user
+            const gapi = payload.gapi
+            commit('setGapiCalendarSwitch', gapi.client.calendar.events)
+            const token = user.getAuthResponse().id_token
+            console.log('user', user)
+            const credential = firebase.auth.GoogleAuthProvider.credential(token)
+            firebase.auth().signInWithCredential(credential)
+            const d = new Date()
+            const startDate = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().slice(0,-13)
+            const endDate = new Date(d.getTime() - (d.getTimezoneOffset() * 60000) + 60000 * 60 * 24).toISOString().slice(0,-13)
+            const events = await gapi.client.calendar.events.list({
+                calendarId: 'primary',
+                timeMin: startDate + '00:00:00+08:00',
+                timeMax: endDate + '23:59:59+08:00',
+                orderBy: 'startTime',
+                singleEvents: 'true'
+            })
+            const currUser = {
+                id: firebase.auth().currentUser.uid,
+                loadedEvents: events.result.items
+            }
+            commit('setUser', currUser)
+        }
+    },
     getters: {
         loadedTrips(state) {
             return state.loadedTrips.sort((locationA, locationB) => {
                 return locationA.time > locationB.time
             })
+        },
+        user(state) {
+            return state.user
+        },
+        gapiCalendarSwitch(state) {
+            return state.gapiCalendarSwitch
         }
     }
 })

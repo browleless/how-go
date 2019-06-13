@@ -45,15 +45,12 @@
 </template>
 
 <script>
-import * as firebase from 'firebase'
-
 export default {
   name: "Navbar",
   data() {
     return {
       sideNav: false,
       isLoggedIn: false,
-      events: []
     }
   },
   computed: {
@@ -73,20 +70,10 @@ export default {
       handleClickSignIn () {
       this.$gAuth
         .signIn()
-        .then(async (payload) => {
-          // On success do something, refer to https://developers.google.com/api-client-library/javascript/reference/referencedocs#googleusergetid
-          const user = payload.user
-          const gapi = payload.gapi
-          const token = user.getAuthResponse().id_token
-          console.log('user', user)
-          const credential = firebase.auth.GoogleAuthProvider.credential(token)
-          firebase.auth().signInWithCredential(credential)
-          const events = await gapi.client.calendar.events.list({
-            calendarId: 'primary'
-          })
-          console.log(events)
+        .then(payload => {
+          this.$store.dispatch('signIn', payload)
           this.isLoggedIn = this.$gAuth.isAuthorized
-        })
+          })
         .catch(error => {
           // On fail do something
           console.log(error)
