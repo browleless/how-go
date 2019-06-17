@@ -5,12 +5,15 @@ import router from './router'
 import { store } from './store'
 import GAuth from 'vue-google-oauth2'
 import * as firebase from 'firebase'
+import axios from 'axios'
 
 const gauthOption = {
   clientId: '857543360628-rrmp7stavqroch9ccf7e4tu2a5m22cg6.apps.googleusercontent.com',
   scope: 'https://www.googleapis.com/auth/calendar.events',
   prompt: 'select_account'
 }
+
+Vue.prototype.$http = axios
 
 Vue.use(GAuth, gauthOption)
 Vue.config.productionTip = false

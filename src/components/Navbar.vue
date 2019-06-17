@@ -8,13 +8,13 @@
           </v-list-tile-action>
           <v-list-tile-content>{{ item.title }}</v-list-tile-content>
         </v-list-tile>
-        <v-list-tile v-if="!this.isLoggedIn" @click="handleClickSignIn">
+        <v-list-tile v-if="!this.$store.state.isLoggedIn" @click="handleClickSignIn">
           <v-list-tile-action>
             <v-icon>lock_open</v-icon>
           </v-list-tile-action>
           <v-list-tile-content>Login</v-list-tile-content>
         </v-list-tile>
-        <v-list-tile v-if="this.isLoggedIn" @click="handleClickSignOut">
+        <v-list-tile v-if="this.$store.state.isLoggedIn" @click="handleClickSignOut">
           <v-list-tile-action>
             <v-icon>lock</v-icon>
           </v-list-tile-action>
@@ -34,10 +34,10 @@
           <v-icon left>{{ item.icon }}</v-icon>
           {{ item.title }}
         </v-btn>
-        <v-btn flat v-if="!this.isLoggedIn" @click="handleClickSignIn">
+        <v-btn flat v-if="!this.$store.state.isLoggedIn" @click="handleClickSignIn">
           <v-icon left>lock_open</v-icon>Login
         </v-btn>
-        <v-btn flat v-if="this.isLoggedIn" @click="handleClickSignOut">
+        <v-btn flat v-if="this.$store.state.isLoggedIn" @click="handleClickSignOut">
           <v-icon left>lock</v-icon>Logout
         </v-btn>
       </v-toolbar-items>
@@ -52,7 +52,7 @@ export default {
   computed: {
     menuItems() {
       let menuItems = [];
-      if (this.$gAuth.isAuthorized) {
+      if (this.$store.state.isLoggedIn) {
         menuItems = [
           { icon: "room", title: "Trips", link: "/trips" },
           { icon: "notifications_on", title: "Reminders", link: "/reminders" },
@@ -60,9 +60,6 @@ export default {
         ];
       }
       return menuItems;
-    },
-    isLoggedIn() {
-      return this.$store.state.isLoggedIn;
     }
   },
   data() {

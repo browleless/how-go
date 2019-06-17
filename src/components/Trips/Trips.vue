@@ -1,6 +1,7 @@
 <template>
   <v-container>
-    <v-layout row wrap  v-for="place in places" :key="place.id" class="mb-3">
+    <TripsInstruction />
+    <v-layout row wrap v-for="place in places" :key="place.id" class="mb-3">
       <v-flex xs12 sm10 md8 offset-sm1 offset-md2>
         <v-card class="info">
           <v-container fluid>
@@ -35,7 +36,12 @@
 </template>
 
 <script>
+import TripsInstruction from './TripsInstruction.vue'
+
 export default {
+  components: {
+    TripsInstruction
+  },
   computed: {
     places() {
       return this.$store.getters.loadedTrips

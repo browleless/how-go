@@ -1,11 +1,10 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../components/Home.vue'
-import Trips from '../components/Trips.vue'
+import Trips from '../components/Trips/Trips.vue'
 import Reminders from '../components/Reminders.vue'
 import Profile from '../components/User/Profile.vue'
 import Login from '../components/User/Login.vue'
-import authGuard from './auth-guard';
 
 Vue.use(VueRouter)
 
