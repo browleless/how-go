@@ -27,7 +27,8 @@ export const store = new Vuex.Store({
             }
         ],
         user: null,
-        gapiCalendarSwitch: null
+        gapiCalendarSwitch: null,
+        isLoggedIn: false
     },
     mutations: {
         setUser(state, payload) {
@@ -62,6 +63,13 @@ export const store = new Vuex.Store({
                 loadedEvents: events.result.items
             }
             commit('setUser', currUser)
+            firebase.database().ref('users').push(currUser)
+                .then((data) => {
+                    console.log(data)
+                })
+                .catch((error) => {
+                    console.log(error)
+                })
         }
     },
     getters: {

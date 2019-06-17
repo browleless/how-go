@@ -8,13 +8,13 @@
           </v-list-tile-action>
           <v-list-tile-content>{{ item.title }}</v-list-tile-content>
         </v-list-tile>
-        <v-list-tile v-if="!isLoggedIn" @click="handleClickSignIn">
+        <v-list-tile v-if="!this.isLoggedIn" @click="handleClickSignIn">
           <v-list-tile-action>
             <v-icon>lock_open</v-icon>
           </v-list-tile-action>
           <v-list-tile-content>Login</v-list-tile-content>
         </v-list-tile>
-        <v-list-tile v-if="isLoggedIn" @click="handleClickSignOut">
+        <v-list-tile v-if="this.isLoggedIn" @click="handleClickSignOut">
           <v-list-tile-action>
             <v-icon>lock</v-icon>
           </v-list-tile-action>
@@ -22,6 +22,7 @@
         </v-list-tile>
       </v-list>
     </v-navigation-drawer>
+
     <v-toolbar>
       <v-toolbar-side-icon @click="sideNav = !sideNav" class="hidden-sm-and-up"></v-toolbar-side-icon>
       <v-toolbar-title>
@@ -33,10 +34,10 @@
           <v-icon left>{{ item.icon }}</v-icon>
           {{ item.title }}
         </v-btn>
-        <v-btn flat v-if="!isLoggedIn" @click="handleClickSignIn">
+        <v-btn flat v-if="!this.isLoggedIn" @click="handleClickSignIn">
           <v-icon left>lock_open</v-icon>Login
         </v-btn>
-        <v-btn flat v-if="isLoggedIn" @click="handleClickSignOut">
+        <v-btn flat v-if="this.isLoggedIn" @click="handleClickSignOut">
           <v-icon left>lock</v-icon>Logout
         </v-btn>
       </v-toolbar-items>
@@ -47,51 +48,55 @@
 <script>
 export default {
   name: "Navbar",
-  data() {
-    return {
-      sideNav: false,
-      isLoggedIn: false,
-    }
-  },
+
   computed: {
     menuItems() {
-      let menuItems = []
-      if (this.isLoggedIn) {
+      let menuItems = [];
+      if (this.$gAuth.isAuthorized) {
         menuItems = [
           { icon: "room", title: "Trips", link: "/trips" },
           { icon: "notifications_on", title: "Reminders", link: "/reminders" },
           { icon: "person", title: "Profile", link: "/profile" }
-        ]
+        ];
       }
-      return menuItems
+      return menuItems;
+    },
+    isLoggedIn() {
+      return this.$store.state.isLoggedIn;
     }
   },
+  data() {
+    return {
+      sideNav: false,
+    };
+  },
   methods: {
-      handleClickSignIn () {
+    handleClickSignIn() {
       this.$gAuth
         .signIn()
         .then(payload => {
-          this.$store.dispatch('signIn', payload)
-          this.isLoggedIn = this.$gAuth.isAuthorized
-          })
+          this.$store.dispatch("signIn", payload);
+          this.$store.state.isLoggedIn = this.$gAuth.isAuthorized;
+        })
         .catch(error => {
           // On fail do something
-          console.log(error)
-        })
+          console.log(error);
+        });
     },
-    handleClickSignOut () {
+    handleClickSignOut() {
       this.$gAuth
         .signOut()
         .then(() => {
           // On success do something
-          this.isLoggedIn = this.$gAuth.isAuthorized
+          this.$store.state.isLoggedIn = this.$gAuth.isAuthorized;
+          this.$router.push("/");
         })
         .catch(error => {
           // On fail do something
-          console.log(error)
-        })
+          console.log(error);
+        });
     }
   }
-}
+};
 </script>
 

@@ -2,23 +2,18 @@
   <v-container>
     <v-layout row wrap>
       <v-flex xs12 sm6 class="text-xs-center text-sm-right">
-        <v-btn large to="/trips" class="info">Explore Trips</v-btn>
+        <v-btn large @click="goToTrips" class="info">Explore Trips</v-btn>
       </v-flex>
       <v-flex xs12 sm6 class="text-xs-center text-sm-left">
-        <v-btn large to="/reminders" class="info">Check Reminders</v-btn>
+        <v-btn large @click="goToReminders" class="info">Check Reminders</v-btn>
       </v-flex>
     </v-layout>
     <v-layout row wrap>
       <v-flex xs12 class="pt-4 pb-1">
         <v-carousel>
-          <v-carousel-item 
-            v-for="place in places"
-            :key="place.id"
-            :src="place.imageUrl">
-            <div class="title">
-              {{ place.title }}
-            </div>
-          </v-carousel-item>  
+          <v-carousel-item v-for="place in places" :key="place.id" :src="place.imageUrl">
+            <div class="title">{{ place.title }}</div>
+          </v-carousel-item>
         </v-carousel>
       </v-flex>
     </v-layout>
@@ -32,21 +27,85 @@
 
 <script>
 export default {
+  name: "Navbar",
+  data() {
+    return {
+      sideNav: false,
+    };
+  },
   computed: {
+    menuItems() {
+      let menuItems = [];
+      if (this.isLoggedIn) {
+        menuItems = [
+          { icon: "room", title: "Trips", link: "/trips" },
+          { icon: "notifications_on", title: "Reminders", link: "/reminders" },
+          { icon: "person", title: "Profile", link: "/profile" }
+        ];
+      }
+      return menuItems;
+    },
     places() {
-      return this.$store.getters.loadedTrips
+      return this.$store.getters.loadedTrips;
+    },
+    isLoggedIn() {
+      return this.$store.state.isLoggedIn;
     }
+  },
+  methods: {
+    goToTrips() {
+      console.log(this.isLoggedin)
+      if(this.isLoggedIn == false){
+        this.handleClickSignInT()
+      } else{
+        this.$router.push("/trips");
+      }
+    },
+    goToReminders(){
+      if(this.isLoggedIn == false){
+        this.handleClickSignInR()
+      } else{
+        this.$router.push("/reminders");
+      }
+    },
+    handleClickSignInT() {
+      this.$gAuth
+        .signIn()
+        .then(payload => {
+          this.$store.dispatch("signIn", payload);
+          this.$store.state.isLoggedIn = this.$gAuth.isAuthorized;
+          this.$router.push("/trips");
+        })
+
+        .catch(error => {
+          // On fail do something
+          console.log(error);
+        });
+    },
+    handleClickSignInR() {
+      this.$gAuth
+        .signIn()
+        .then(payload => {
+          this.$store.dispatch("signIn", payload);
+          this.$store.state.isLoggedIn = this.$gAuth.isAuthorized;
+          this.$router.push("/reminders");
+        })
+
+        .catch(error => {
+          // On fail do something
+          console.log(error);
+        });
+    },
   }
 };
 </script>
-
 <style scoped>
 .title {
   position: absolute;
   bottom: 50px;
   background-color: rgba(0, 0, 0, 0.5);
   color: white;
-  font-size: 2.0em;
+  font-size: 2em;
   padding: 20px;
   justify-content: center;
   left: 50%;
