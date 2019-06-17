@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import axios from 'axios'
 import * as firebase from 'firebase'
 
 Vue.use(Vuex)
@@ -28,6 +29,7 @@ export const store = new Vuex.Store({
         ],
         user: null,
         gapiCalendarSwitch: null,
+        calendarEvents: [{ name: 'COMPASS HEIGHTS', latlng: '1.39205277861036,103.895070061064', date: '2019-06-18', startTime: '00:00:00' }],
         isLoggedIn: false
     },
     mutations: {
@@ -36,6 +38,9 @@ export const store = new Vuex.Store({
         },
         setGapiCalendarSwitch(state, payload) {
             state.gapiCalendarSwitch = payload
+        },
+        setCalendarEvents(state, payload) {
+            state.calendarEvents.push(payload)
         }
     },
     actions: {
@@ -49,27 +54,39 @@ export const store = new Vuex.Store({
             const credential = firebase.auth.GoogleAuthProvider.credential(token)
             firebase.auth().signInWithCredential(credential)
             const d = new Date()
-            const startDate = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().slice(0,-13)
+            const startDate = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().slice(0,-5)
             const endDate = new Date(d.getTime() - (d.getTimezoneOffset() * 60000) + 60000 * 60 * 24).toISOString().slice(0,-13)
             const events = await gapi.client.calendar.events.list({
                 calendarId: 'primary',
-                timeMin: startDate + '00:00:00+08:00',
+                timeMin: startDate + '+08:00',
                 timeMax: endDate + '23:59:59+08:00',
                 orderBy: 'startTime',
                 singleEvents: 'true'
             })
+            console.log(events)
+            for (var i = 0; i < events.result.items.length; i++) {
+                var eventInfo = {}
+                if (events.result.items[i].location) {
+                    const postalCode = events.result.items[i].location.slice(-6)
+                    await axios.get('https://developers.onemap.sg/commonapi/search?searchVal=' + postalCode + '&returnGeom=Y&getAddrDetails=N&pageNum=1')
+                    .then(res => {
+                        eventInfo['name'] = res.data.results[0].SEARCHVAL
+                        eventInfo['latlng'] = res.data.results[0].LATITUDE + ',' + res.data.results[0].LONGITUDE
+                    })
+                    .catch(err => {
+                        console.log(err)
+                    })
+                    eventInfo['date'] = events.result.items[i].start.dateTime.slice(0,10)
+                    eventInfo['startTime'] = events.result.items[i].start.dateTime.slice(11,19)
+                }
+                commit('setCalendarEvents', eventInfo)
+            }
             const currUser = {
                 id: firebase.auth().currentUser.uid,
-                loadedEvents: events.result.items
+                loadedEvents: events.result.items,
             }
+            console.log(currUser)
             commit('setUser', currUser)
-            firebase.database().ref('users').push(currUser)
-                .then((data) => {
-                    console.log(data)
-                })
-                .catch((error) => {
-                    console.log(error)
-                })
         }
     },
     getters: {
@@ -80,6 +97,9 @@ export const store = new Vuex.Store({
         },
         user(state) {
             return state.user
+        },
+        calendarEvents(state) {
+            return state.calendarEvents
         },
         gapiCalendarSwitch(state) {
             return state.gapiCalendarSwitch

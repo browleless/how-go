@@ -27,42 +27,22 @@
 
 <script>
 export default {
-  name: "Navbar",
-  data() {
-    return {
-      sideNav: false,
-    };
-  },
+  name: "Home",
   computed: {
-    menuItems() {
-      let menuItems = [];
-      if (this.isLoggedIn) {
-        menuItems = [
-          { icon: "room", title: "Trips", link: "/trips" },
-          { icon: "notifications_on", title: "Reminders", link: "/reminders" },
-          { icon: "person", title: "Profile", link: "/profile" }
-        ];
-      }
-      return menuItems;
-    },
     places() {
       return this.$store.getters.loadedTrips;
-    },
-    isLoggedIn() {
-      return this.$store.state.isLoggedIn;
     }
   },
   methods: {
     goToTrips() {
-      console.log(this.isLoggedin)
-      if(this.isLoggedIn == false){
+      if(!this.$store.state.isLoggedIn){
         this.handleClickSignInT()
       } else{
         this.$router.push("/trips");
       }
     },
     goToReminders(){
-      if(this.isLoggedIn == false){
+      if(!this.$store.state.isLoggedIn){
         this.handleClickSignInR()
       } else{
         this.$router.push("/reminders");
