@@ -11,6 +11,8 @@
     "axios": "^0.19.0",
     "core-js": "^2.6.5",
     "firebase": "^6.1.1",
+    "first-image-search-load": "^0.4.0",
+    "free-google-image-search": "^1.0.0",
     "vue": "^2.6.10",
     "vue-google-oauth2": "https://github.com/browleless/vue-google-oauth2-modified/tarball/master",
     "vue-router": "^3.0.6",
