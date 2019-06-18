@@ -50,6 +50,27 @@ const actions = {
         console.log('user', user)
         const credential = firebase.auth.GoogleAuthProvider.credential(token)
         firebase.auth().signInWithCredential(credential)
+        .then(async res => {
+            let currUser = {}
+            if (res.additionalUserInfo.isNewUser) {
+                currUser = {
+                    id: firebase.auth().currentUser.uid,
+                    name: firebase.auth().currentUser.displayName,
+                    email: firebase.auth().currentUser.email,
+                    photo: firebase.auth().currentUser.photoURL,
+                    loadedEvents: events.result.items,
+                    address: ''
+                }
+                firebase.firestore().collection('users').doc(currUser.id).set(currUser)
+            } else {
+                await firebase.firestore().collection('users').doc(firebase.auth().currentUser.uid).get()
+                .then(querySnapshot => {
+                    currUser = querySnapshot.data()
+                })
+            }
+            console.log(currUser)
+            commit('setUser', currUser)
+        })
         const d = new Date()
         const startDate = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().slice(0, -5)
         const endDate = new Date(d.getTime() - (d.getTimezoneOffset() * 60000) + 60000 * 60 * 24).toISOString().slice(0, -13)
@@ -78,15 +99,6 @@ const actions = {
             }
             commit('setCalendarEvents', eventInfo)
         }
-        const currUser = {
-            id: firebase.auth().currentUser.uid,
-            name: firebase.auth().currentUser.displayName,
-            email: firebase.auth().currentUser.email,
-            photo: firebase.auth().currentUser.photoURL,
-            loadedEvents: events.result.items,
-        }
-        console.log(currUser)
-        commit('setUser', currUser)
     }
 }
 
