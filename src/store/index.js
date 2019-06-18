@@ -30,7 +30,7 @@ const getDefaultState = () => {
         ],
         user: null,
         gapiCalendarSwitch: null,
-        calendarEvents: [{ name: 'COMPASS HEIGHTS', latlng: '1.39205277861036,103.895070061064', date: '2019-06-18', startTime: '00:00:00' }],
+        calendarEvents: [],
         isLoggedIn: false
     }
 }
@@ -58,14 +58,18 @@ const actions = {
                     name: firebase.auth().currentUser.displayName,
                     email: firebase.auth().currentUser.email,
                     photo: firebase.auth().currentUser.photoURL,
-                    loadedEvents: events.result.items,
-                    address: ''
+                    address: {
+                        full: ''
+                    }
                 }
                 firebase.firestore().collection('users').doc(currUser.id).set(currUser)
             } else {
                 await firebase.firestore().collection('users').doc(firebase.auth().currentUser.uid).get()
                 .then(querySnapshot => {
                     currUser = querySnapshot.data()
+                    if (currUser.address.name) {
+                        commit('setCalendarEvents', currUser.address)
+                    }
                 })
             }
             console.log(currUser)

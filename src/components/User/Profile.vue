@@ -19,7 +19,7 @@
                     <h2>{{ name }}</h2>
                     <v-flex>Email: {{ email }}</v-flex>
                     <v-flex>
-                      Address: {{ this.$store.getters.user.address }}
+                      Address: {{ this.$store.getters.user.address.full }}
                       <v-btn class="info" v-if="!update" @click="update = !update">Update</v-btn>
                       <v-btn class="error" v-if="update" @click="update = !update">Close</v-btn>
                     </v-flex>
@@ -61,7 +61,7 @@ export default {
       name: this.$store.getters.user.name,
       email: this.$store.getters.user.email,
       photo: this.$store.getters.user.photo,
-      emptyAddress: this.$store.getters.user.address === '',
+      emptyAddress: this.$store.getters.user.address.full === '',
       postalCode: '',
       update: false,
       alert: false,
@@ -101,16 +101,29 @@ export default {
             "&returnGeom=Y&getAddrDetails=Y&pageNum=1"
         )
         .then(res => {
+            console.log(res)
           if (res.data.results.length !== 0) {
+            const name = res.data.results[0].SEARCHVAL
+            const latlng = res.data.results[0].LATITUDE + ',' + res.data.results[0].LONGITUDE
             const address = res.data.results[0].ADDRESS
-            this.type = "success"
-            this.alertText = "Successfully updated Postal Code!"
+            const d = new Date()
+            const date = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().slice(0, 10)
+            const startTime = '08:00:00'
+            const completedAddress = {
+                name: name,
+                latlng: latlng,
+                date: date,
+                startTime: startTime,
+                full: address
+            }
             firebase
               .firestore()
               .collection("users")
               .doc(this.$store.getters.user.id)
-              .update({ address: address })
-            this.$store.getters.user.address = address
+              .update({ address: completedAddress })
+            this.$store.getters.user.address = completedAddress
+            this.type = "success"
+            this.alertText = "Successfully updated Postal Code!"
           } else {
             this.type = "error"
             this.alertText = "Postal Code not found, please try again!"
