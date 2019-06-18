@@ -2,11 +2,12 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios'
 import * as firebase from 'firebase'
+import createPersistedState from 'vuex-persistedstate'
 
 Vue.use(Vuex)
 
-export const store = new Vuex.Store({
-    state: {
+const getDefaultState = () => {
+    return {
         loadedTrips: [
             {
                 imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/7/7e/OCBC_Skyway%2C_Gardens_By_The_Bay%2C_Singapore_-_20140809.jpg',
@@ -31,44 +32,40 @@ export const store = new Vuex.Store({
         gapiCalendarSwitch: null,
         calendarEvents: [{ name: 'COMPASS HEIGHTS', latlng: '1.39205277861036,103.895070061064', date: '2019-06-18', startTime: '00:00:00' }],
         isLoggedIn: false
+    }
+}
+
+const state = getDefaultState()
+
+const actions = {
+    resetStoreState({ commit }) {
+        commit('resetState')
     },
-    mutations: {
-        setUser(state, payload) {
-            state.user = payload
-        },
-        setGapiCalendarSwitch(state, payload) {
-            state.gapiCalendarSwitch = payload
-        },
-        setCalendarEvents(state, payload) {
-            state.calendarEvents.push(payload)
-        }
-    },
-    actions: {
-        async signIn({ commit }, payload) {
-            // On success do something, refer to https://developers.google.com/api-client-library/javascript/reference/referencedocs#googleusergetid
-            const user = payload.user
-            const gapi = payload.gapi
-            commit('setGapiCalendarSwitch', gapi.client.calendar.events)
-            const token = user.getAuthResponse().id_token
-            console.log('user', user)
-            const credential = firebase.auth.GoogleAuthProvider.credential(token)
-            firebase.auth().signInWithCredential(credential)
-            const d = new Date()
-            const startDate = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().slice(0,-5)
-            const endDate = new Date(d.getTime() - (d.getTimezoneOffset() * 60000) + 60000 * 60 * 24).toISOString().slice(0,-13)
-            const events = await gapi.client.calendar.events.list({
-                calendarId: 'primary',
-                timeMin: startDate + '+08:00',
-                timeMax: endDate + '23:59:59+08:00',
-                orderBy: 'startTime',
-                singleEvents: 'true'
-            })
-            console.log(events)
-            for (var i = 0; i < events.result.items.length; i++) {
-                var eventInfo = {}
-                if (events.result.items[i].location) {
-                    const postalCode = events.result.items[i].location.slice(-6)
-                    await axios.get('https://developers.onemap.sg/commonapi/search?searchVal=' + postalCode + '&returnGeom=Y&getAddrDetails=N&pageNum=1')
+    async signIn({ commit }, payload) {
+        // On success do something, refer to https://developers.google.com/api-client-library/javascript/reference/referencedocs#googleusergetid
+        const user = payload.user
+        const gapi = payload.gapi
+        commit('setGapiCalendarSwitch', gapi.client.calendar.events)
+        const token = user.getAuthResponse().id_token
+        console.log('user', user)
+        const credential = firebase.auth.GoogleAuthProvider.credential(token)
+        firebase.auth().signInWithCredential(credential)
+        const d = new Date()
+        const startDate = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().slice(0, -5)
+        const endDate = new Date(d.getTime() - (d.getTimezoneOffset() * 60000) + 60000 * 60 * 24).toISOString().slice(0, -13)
+        const events = await gapi.client.calendar.events.list({
+            calendarId: 'primary',
+            timeMin: startDate + '+08:00',
+            timeMax: endDate + '23:59:59+08:00',
+            orderBy: 'startTime',
+            singleEvents: 'true'
+        })
+        console.log(events)
+        for (var i = 0; i < events.result.items.length; i++) {
+            var eventInfo = {}
+            if (events.result.items[i].location) {
+                const postalCode = events.result.items[i].location.slice(-6)
+                await axios.get('https://developers.onemap.sg/commonapi/search?searchVal=' + postalCode + '&returnGeom=Y&getAddrDetails=N&pageNum=1')
                     .then(res => {
                         eventInfo['name'] = res.data.results[0].SEARCHVAL
                         eventInfo['latlng'] = res.data.results[0].LATITUDE + ',' + res.data.results[0].LONGITUDE
@@ -76,33 +73,59 @@ export const store = new Vuex.Store({
                     .catch(err => {
                         console.log(err)
                     })
-                    eventInfo['date'] = events.result.items[i].start.dateTime.slice(0,10)
-                    eventInfo['startTime'] = events.result.items[i].start.dateTime.slice(11,19)
-                }
-                commit('setCalendarEvents', eventInfo)
+                eventInfo['date'] = events.result.items[i].start.dateTime.slice(0, 10)
+                eventInfo['startTime'] = events.result.items[i].start.dateTime.slice(11, 19)
             }
-            const currUser = {
-                id: firebase.auth().currentUser.uid,
-                loadedEvents: events.result.items,
-            }
-            console.log(currUser)
-            commit('setUser', currUser)
+            commit('setCalendarEvents', eventInfo)
         }
-    },
-    getters: {
-        loadedTrips(state) {
-            return state.loadedTrips.sort((locationA, locationB) => {
-                return locationA.time > locationB.time
-            })
-        },
-        user(state) {
-            return state.user
-        },
-        calendarEvents(state) {
-            return state.calendarEvents
-        },
-        gapiCalendarSwitch(state) {
-            return state.gapiCalendarSwitch
+        const currUser = {
+            id: firebase.auth().currentUser.uid,
+            name: firebase.auth().currentUser.displayName,
+            email: firebase.auth().currentUser.email,
+            photo: firebase.auth().currentUser.photoURL,
+            loadedEvents: events.result.items,
         }
+        console.log(currUser)
+        commit('setUser', currUser)
     }
+}
+
+const mutations = {
+    resetState(state) {
+        Object.assign(state, getDefaultState())
+    },
+    setUser(state, payload) {
+        state.user = payload
+    },
+    setGapiCalendarSwitch(state, payload) {
+        state.gapiCalendarSwitch = payload
+    },
+    setCalendarEvents(state, payload) {
+        state.calendarEvents.push(payload)
+    }
+}
+
+const getters = {
+    loadedTrips(state) {
+        return state.loadedTrips.sort((locationA, locationB) => {
+            return locationA.time > locationB.time
+        })
+    },
+    user(state) {
+        return state.user
+    },
+    calendarEvents(state) {
+        return state.calendarEvents
+    },
+    gapiCalendarSwitch(state) {
+        return state.gapiCalendarSwitch
+    }
+}
+
+export const store = new Vuex.Store({
+    plugins: [createPersistedState()],
+    state,
+    actions,
+    mutations,
+    getters
 })

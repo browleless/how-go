@@ -85,7 +85,7 @@ export default {
         .signOut()
         .then(() => {
           // On success do something
-          this.$store.state.isLoggedIn = this.$gAuth.isAuthorized;
+          this.$store.dispatch('resetStoreState')
           this.$router.push("/");
         })
         .catch(error => {
