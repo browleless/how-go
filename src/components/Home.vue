@@ -1,12 +1,6 @@
 <template>
   <v-container>
     <v-layout row wrap>
-      <v-flex xs12 sm6 class="text-xs-center text-sm-right">
-        <v-btn large @click="goToTrips" class="info">Explore Trips</v-btn>
-      </v-flex>
-      <v-flex xs12 sm6 class="text-xs-center text-sm-left">
-        <v-btn large @click="goToReminders" class="info">Check Reminders</v-btn>
-      </v-flex>
     </v-layout>
     <v-layout row wrap>
       <v-flex xs12 class="pt-4 pb-1">
@@ -32,50 +26,6 @@ export default {
     places() {
       return this.$store.getters.loadedTrips;
     }
-  },
-  methods: {
-    goToTrips() {
-      if(!this.$store.state.isLoggedIn){
-        this.handleClickSignInT()
-      } else{
-        this.$router.push("/trips");
-      }
-    },
-    goToReminders(){
-      if(!this.$store.state.isLoggedIn){
-        this.handleClickSignInR()
-      } else{
-        this.$router.push("/reminders");
-      }
-    },
-    handleClickSignInT() {
-      this.$gAuth
-        .signIn()
-        .then(payload => {
-          this.$store.dispatch("signIn", payload);
-          this.$store.state.isLoggedIn = this.$gAuth.isAuthorized;
-          this.$router.push("/trips");
-        })
-
-        .catch(error => {
-          // On fail do something
-          console.log(error);
-        });
-    },
-    handleClickSignInR() {
-      this.$gAuth
-        .signIn()
-        .then(payload => {
-          this.$store.dispatch("signIn", payload);
-          this.$store.state.isLoggedIn = this.$gAuth.isAuthorized;
-          this.$router.push("/reminders");
-        })
-
-        .catch(error => {
-          // On fail do something
-          console.log(error);
-        });
-    },
   }
 };
 </script>

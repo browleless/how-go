@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../components/Home.vue'
+import Landing from '../components/Landing.vue'
 import Trips from '../components/Trips/Trips.vue'
 import Routes from '../components/Trips/Routes.vue'
 import Reminders from '../components/Reminders.vue'
@@ -13,6 +14,11 @@ export default new VueRouter({
     routes: [
         {
             path: '/',
+            name: 'Landing',
+            component: Landing
+        },
+        {
+            path: '/home',
             name: 'Home',
             component: Home
         },

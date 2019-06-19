@@ -90,6 +90,7 @@ export default {
             .then(payload => {
               this.$store.dispatch("signIn", payload)
               this.$store.state.isLoggedIn = this.$gAuth.isAuthorized
+              this.$router.push('/home')
             })
             .catch(error => {
               // On fail do something
@@ -130,6 +131,8 @@ export default {
               .doc(this.$store.getters.user.id)
               .update({ address: completedAddress })
             this.$store.commit('setAddress', completedAddress)
+            this.$store.commit('shiftHome')
+            this.$store.commit('setHome', completedAddress)
             this.type = "success"
             this.alertText = "Successfully updated Address!"
           } else {

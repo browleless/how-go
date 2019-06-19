@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-layout row wrap v-for="place in places" :key="place.id" class="mb-3">
+    <v-layout row wrap v-for="place in places.slice(1)" :key="place.id" class="mb-3" >
       <v-flex xs12 sm10 md8 offset-sm1 offset-md2>
         <v-card class="info">
           <v-container fluid>
@@ -8,15 +8,15 @@
               <v-flex xs5 sm4 md3>
                 <v-img
                   :src="place.imageUrl"
-                  height="130px"
-                  contain
+                  height="100%"
+                  fit
                 ></v-img>
               </v-flex>
               <v-flex xs7 sm8 md9>
                 <v-card-title primary-title>
                   <div>
-                    <h2 class="white--text">{{ place.title }}</h2>
-                    <div>Time to reach: {{ place.time }}</div>
+                    <h2 class="white--text">{{ place.name }}</h2>
+                    <div>Time to reach: {{ place.startTime }}</div>
                   </div>
                 </v-card-title>
                 <v-card-actions>
@@ -35,15 +35,10 @@
 </template>
 
 <script>
-import TripsInstruction from './TripsInstruction.vue'
-
 export default {
-  components: {
-    TripsInstruction
-  },
   computed: {
     places() {
-      return this.$store.getters.loadedTrips
+      return this.$store.state.todayEvents
     }
   },
   methods: {

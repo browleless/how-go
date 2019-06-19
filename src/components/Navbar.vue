@@ -23,10 +23,10 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-toolbar color="orange lighten-2">
+    <v-toolbar color="blue-grey lighten-5">
       <v-toolbar-side-icon @click="sideNav = !sideNav" class="hidden-sm-and-up"></v-toolbar-side-icon>
       <v-toolbar-title>
-        <router-link to="/" tag="span" style="cursor: pointer">HowGo?</router-link>
+        <router-link to="/home" tag="span" style="cursor: pointer">HowGo?</router-link>
       </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-toolbar-items class="hidden-xs-only">
@@ -74,6 +74,7 @@ export default {
         .then(payload => {
           this.$store.dispatch("signIn", payload);
           this.$store.state.isLoggedIn = this.$gAuth.isAuthorized;
+          this.$router.push("/home");
         })
         .catch(error => {
           // On fail do something

@@ -28,8 +28,8 @@ const getDefaultState = () => {
                 time: '0000'
             }
         ],
-        todayEvents: [{ name: 'COMPASS HEIGHTS', latlng: '1.39205277861036,103.895070061064', date: '2019-06-18', startTime: '00:00:00' }],
-        tmrwEvents: [{ name: 'COMPASS HEIGHTS', latlng: '1.39205277861036,103.895070061064', date: '2019-06-18', startTime: '00:00:00' }],
+        todayEvents: [],
+        tmrwEvents: [],
         user: null,
         gapiCalendarSwitch: null,
         calendarEvents: [],
@@ -81,6 +81,7 @@ const actions = {
                     userData.update(currUser)
                 })
             }
+            commit('setHome', currUser.address)
             console.log(currUser)
             commit('setUser', currUser)
         })
@@ -108,19 +109,29 @@ const actions = {
                     })
                 eventInfo['date'] = events.result.items[i].start.dateTime.slice(0, 10)
                 eventInfo['startTime'] = events.result.items[i].start.dateTime.slice(11, 19)
-            }
-            if (eventInfo.date === startDate.slice(0, 10)) {
-                commit('setTodayEvents', eventInfo)
-            } else {
-                commit('setTmrwEvents', eventInfo)
+                
+                if (eventInfo.date === startDate.slice(0, 10)) {
+                    commit('setTodayEvents', eventInfo)
+                } else {
+                    commit('setTmrwEvents', eventInfo)
+                }
             }
         }
         for (var u = 1; u < this.state.todayEvents.length; u++) {
             console.log(this.state.todayEvents.length)
-            var loadedEvent = {}
+            let loadedEvent = {}
             loadedEvent['id'] = u;
             loadedEvent['title'] = this.state.todayEvents[u].name
             loadedEvent['time'] = this.state.todayEvents[u].startTime
+            loadedEvent['imageURL'] = 'https://upload.wikimedia.org/wikipedia/commons/7/7e/OCBC_Skyway%2C_Gardens_By_The_Bay%2C_Singapore_-_20140809.jpg'
+            commit('addLoadedTrips', loadedEvent)
+        }
+        for (var o = 1; o < this.state.tmrwEvents.length; o++) {
+            console.log(this.state.tmrwEvents.length)
+            let loadedEvent = {}
+            loadedEvent['id'] = o;
+            loadedEvent['title'] = this.state.tmrwEvents[o].name
+            loadedEvent['time'] = this.state.tmrwEvents[o].startTime
             loadedEvent['imageURL'] = 'https://upload.wikimedia.org/wikipedia/commons/7/7e/OCBC_Skyway%2C_Gardens_By_The_Bay%2C_Singapore_-_20140809.jpg'
             commit('addLoadedTrips', loadedEvent)
         }
@@ -149,6 +160,14 @@ const mutations = {
     setTmrwEvents(state, payload) {
         state.tmrwEvents.push(payload)
     },
+    setHome(state, payload) {
+        state.todayEvents.unshift(payload)
+        state.tmrwEvents.unshift(payload)
+    },
+    shiftHome(state) {
+        state.todayEvents.shift()
+        state.tmrwEvents.shift()
+    },
     addLoadedTrips(state, payload) {
         state.loadedTrips.push(payload)
     }
@@ -164,7 +183,11 @@ const getters = {
         return state.user
     },
     calendarEvents(state) {
-        return state.todaysEvents
+        if(today){
+            return state.tmrwEvents
+        } else{
+            return state.tmrwEvents
+        }
     },
     gapiCalendarSwitch(state) {
         return state.gapiCalendarSwitch

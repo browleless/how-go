@@ -1,34 +1,35 @@
 <template>
   <div>
     <v-layout row>
-      <v-flex xs4 sm4 justify-space-between>
+      <v-flex >
         <v-card>
-          <v-toolbar color="yellow lighten-4">
+          <v-toolbar color="light-blue lighten-2">
             <v-icon>directions</v-icon>
-            <v-toolbar-title justify-space-around class="title">Route Options</v-toolbar-title>
+            <v-toolbar-title justify-space-around>
+              <v-card-text class="title">Route Options</v-card-text>
+            </v-toolbar-title>
             <v-spacer></v-spacer>
           </v-toolbar>
           <v-expansion-panel>
-          <v-expansion-panel-content v-for="itinerary in itineraries" :key="itinerary.index">
-            <template v-slot:header>
-              <div>{{itinerary.travelTime}}</div>
-            </template>
-            <v-timeline dense light align-top>
-            <v-timeline-item
-              v-for="instructions in itinerary.fullInstructions"
-              :key="instructions.index"
-              color="red lighten-2"
-              small
-            >
-              <v-card class="elevation-5">
-                <v-card-title class="subheading">{{instructions[0]}}</v-card-title>
-                <v-card-text>{{instructions[1]}} {{instructions[2]}}</v-card-text>
-              </v-card>
-            </v-timeline-item>
-          </v-timeline>
-          </v-expansion-panel-content>
-        </v-expansion-panel>
-          
+            <v-expansion-panel-content v-for="itinerary in itineraries" :key="itinerary.index">
+              <template v-slot:header>
+                <div>{{itinerary.travelTime}}</div>
+              </template>
+              <v-timeline dense light align-top>
+                <v-timeline-item
+                  v-for="instructions in itinerary.fullInstructions"
+                  :key="instructions.index"
+                  color="red lighten-2"
+                  small
+                >
+                  <v-card class="elevation-5">
+                    <v-card-title class="subheading">{{instructions[0]}}</v-card-title>
+                    <v-card-text>{{instructions[1]}} {{instructions[2]}}</v-card-text>
+                  </v-card>
+                </v-timeline-item>
+              </v-timeline>
+            </v-expansion-panel-content>
+          </v-expansion-panel>
         </v-card>
       </v-flex>
     </v-layout>
@@ -50,7 +51,7 @@ export default {
           travelTime: "Approx. travel time: 4 min",
           cost: "Cost: $1.51",
           fullInstructions: [
-            ["COMPASS HEIGHTS", "Walk for 123412298m to path", "4 min (298 m)"],
+            ["COMPAasdfEIGHTS", "Walk for 123412298m to path", "4 min (298 m)"],
             ["SENGKANG STN", "Walk for 97m to SENGKANG MRT", "(97 m)"],
             [
               "SERANGOON MRT STATION",
@@ -64,7 +65,7 @@ export default {
           travelTime: "Approx. travel time: 10 min",
           cost: "Cost: $1.51",
           fullInstructions: [
-            ["COMPASS HEIGHTS", "Walk for 298m to path", "4 min (298 m)"],
+            ["CasdfTS", "Walk for 298m to path", "4 min (298 m)"],
             ["SENGKANG STN", "Walk for 9232327m to SENGKANG MRT", "(97 m)"],
             [
               "SERANGOON MRT STATION",
@@ -78,7 +79,7 @@ export default {
           travelTime: "Approx. travel time: 12 min",
           cost: "Cost: $1.51",
           fullInstructions: [
-            ["COMPASS HEIGHTS", "Walk for 298m to path", "4 min (298 m)"],
+            ["CfdsaS", "Walk for 298m to path", "4 min (298 m)"],
             ["SENGKANG STN", "Walk for 97m to SENGKANG MRT", "(97 m)"],
             [
               "SERANGOON MRT STATION",
@@ -92,7 +93,7 @@ export default {
     };
   },
   methods: {
-    async init() {
+    async init(id) {
       console.log("sdfasf");
       for (var i = 0; i < this.$store.getters.calendarEvents.length - 1; i++) {
         //if(this.$store.getters.calendarEvents.id === id){
@@ -195,14 +196,16 @@ export default {
       }
       //}
     },
-    pullInstructions(id) {},
+    pullInstructions(id) {
+      this.init(id)
+      this.loaded = true
+    },
     show() {
       console.log("this button was pressed");
     }
   },
   mounted() {
-    this.init();
-    this.loaded = true;
+    
   }
 };
 </script>
