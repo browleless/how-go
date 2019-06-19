@@ -43,6 +43,8 @@ const actions = {
     },
     async signIn({ commit }, payload) {
         // On success do something, refer to https://developers.google.com/api-client-library/javascript/reference/referencedocs#googleusergetid
+        const d = new Date()
+        const dateToday = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString()
         const user = payload.user
         const gapi = payload.gapi
         commit('setGapiCalendarSwitch', gapi.client.calendar.events)
@@ -52,6 +54,7 @@ const actions = {
         firebase.auth().signInWithCredential(credential)
         .then(async res => {
             let currUser = {}
+            const userData = firebase.firestore().collection('users').doc(firebase.auth().currentUser.uid)
             if (res.additionalUserInfo.isNewUser) {
                 currUser = {
                     id: firebase.auth().currentUser.uid,
@@ -62,9 +65,15 @@ const actions = {
                         full: ''
                     }
                 }
-                firebase.firestore().collection('users').doc(currUser.id).set(currUser)
+                userData.set(currUser)
             } else {
-                await firebase.firestore().collection('users').doc(firebase.auth().currentUser.uid).get()
+                const currDate = dateToday.slice(0, 10)
+                const currTime = dateToday.slice(11, 19)
+                userData.update({ 
+                    'address.date': currDate,
+                    'address.startTime': currTime,
+                })
+                await userData.get()
                 .then(querySnapshot => {
                     currUser = querySnapshot.data()
                     if (currUser.address.name) {
@@ -75,8 +84,7 @@ const actions = {
             console.log(currUser)
             commit('setUser', currUser)
         })
-        const d = new Date()
-        const startDate = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().slice(0, -5)
+        const startDate = dateToday.slice(0, -5)
         const endDate = new Date(d.getTime() - (d.getTimezoneOffset() * 60000) + 60000 * 60 * 24).toISOString().slice(0, -13)
         const events = await gapi.client.calendar.events.list({
             calendarId: 'primary',
@@ -118,6 +126,9 @@ const mutations = {
     },
     setCalendarEvents(state, payload) {
         state.calendarEvents.push(payload)
+    },
+    setAddress(state, payload) {
+        state.user.address = payload
     }
 }
 

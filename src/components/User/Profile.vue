@@ -6,6 +6,11 @@
           v-model="emptyAddress"
           type="warning"
         >Please set up your address for the first time.</v-alert>
+        <v-alert
+          v-model="alert"
+          dismissible
+          :type="type"
+        >{{ alertText }}</v-alert>
         <v-card>
           <v-container fluid>
             <v-layout row>
@@ -40,7 +45,6 @@
                         >Submit</v-btn>
                       </v-flex>
                     </v-layout>
-                    <v-alert v-model="alert" dismissible :type="type">{{ alertText }}</v-alert>
                   </v-flex>
                 </v-card-title>
               </v-flex>
@@ -61,12 +65,16 @@ export default {
       name: this.$store.getters.user.name,
       email: this.$store.getters.user.email,
       photo: this.$store.getters.user.photo,
-      emptyAddress: this.$store.getters.user.address.full === '',
       postalCode: '',
       update: false,
       alert: false,
       type: null,
       alertText: ''
+    }
+  },
+  computed: {
+    emptyAddress() {
+      return !this.$store.getters.user.address.name && !this.alert
     }
   },
   methods: {
@@ -101,14 +109,14 @@ export default {
             "&returnGeom=Y&getAddrDetails=Y&pageNum=1"
         )
         .then(res => {
-            console.log(res)
           if (res.data.results.length !== 0) {
             const name = res.data.results[0].SEARCHVAL
             const latlng = res.data.results[0].LATITUDE + ',' + res.data.results[0].LONGITUDE
             const address = res.data.results[0].ADDRESS
             const d = new Date()
-            const date = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().slice(0, 10)
-            const startTime = '08:00:00'
+            const dateToday = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString()
+            const date = dateToday.slice(0, 10)
+            const startTime = dateToday.slice(11, 19)
             const completedAddress = {
                 name: name,
                 latlng: latlng,
@@ -118,12 +126,12 @@ export default {
             }
             firebase
               .firestore()
-              .collection("users")
+              .collection('users')
               .doc(this.$store.getters.user.id)
               .update({ address: completedAddress })
-            this.$store.getters.user.address = completedAddress
+            this.$store.commit('setAddress', completedAddress)
             this.type = "success"
-            this.alertText = "Successfully updated Postal Code!"
+            this.alertText = "Successfully updated Address!"
           } else {
             this.type = "error"
             this.alertText = "Postal Code not found, please try again!"
