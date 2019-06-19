@@ -1,73 +1,141 @@
 <template>
   <div>
-    <v-btn v-if="loaded" @click="loaded = !loaded">Show</v-btn>
-    <v-btn v-if="!loaded" @click="loaded = !loaded">Hide</v-btn>
-    <div v-if="!loaded">
-      <div v-for="trips in tripsInfo" :key="trips.index" id="possibleTrips">
-        Route Options for Destination
-        <div
-          v-for="itinararies in trips.itinararies"
-          :key="itinararies.index"
-          id="specificTrip"
-        >
-        <div>{{ itinararies.travelTime }}</div>
-        <div>{{ itinararies.cost }}</div>
-          <ul
-            v-for="instructions in itinararies.fullInstructions"
-            :key="instructions.index"
-            id="instructions"
-          >
-            <div
-              v-for="steps in instructions.steps"
-              :key="steps.index"
-            >{{ steps }}</div>
-          </ul>
-        </div>
-      </div>
-    </div>
+    <v-layout row>
+      <v-flex xs4 sm4 justify-space-between>
+        <v-card>
+          <v-toolbar color="yellow lighten-4">
+            <v-icon>directions</v-icon>
+            <v-toolbar-title justify-space-around class="title">Route Options</v-toolbar-title>
+            <v-spacer></v-spacer>
+          </v-toolbar>
+          <v-expansion-panel>
+          <v-expansion-panel-content v-for="itinerary in itineraries" :key="itinerary.index">
+            <template v-slot:header>
+              <div>{{itinerary.travelTime}}</div>
+            </template>
+            <v-timeline dense light align-top>
+            <v-timeline-item
+              v-for="instructions in itinerary.fullInstructions"
+              :key="instructions.index"
+              color="red lighten-2"
+              small
+            >
+              <v-card class="elevation-5">
+                <v-card-title class="subheading">{{instructions[0]}}</v-card-title>
+                <v-card-text>{{instructions[1]}} {{instructions[2]}}</v-card-text>
+              </v-card>
+            </v-timeline-item>
+          </v-timeline>
+          </v-expansion-panel-content>
+        </v-expansion-panel>
+          
+        </v-card>
+      </v-flex>
+    </v-layout>
   </div>
 </template>
 
 <script>
 export default {
   name: "TripsInstruction",
+  computed: {
+    itinerary() {
+      return this.itineraries[0];
+    }
+  },
   data() {
     return {
-      tripsInfo: [],
-      loaded: false,
-    }
+      itineraries: [
+        {
+          travelTime: "Approx. travel time: 4 min",
+          cost: "Cost: $1.51",
+          fullInstructions: [
+            ["COMPASS HEIGHTS", "Walk for 123412298m to path", "4 min (298 m)"],
+            ["SENGKANG STN", "Walk for 97m to SENGKANG MRT", "(97 m)"],
+            [
+              "SERANGOON MRT STATION",
+              "Take and alight at PAYA LEBAR MRT STATION",
+              "7 min(4 stops, 4.4km)"
+            ]
+          ]
+        },
+
+        {
+          travelTime: "Approx. travel time: 10 min",
+          cost: "Cost: $1.51",
+          fullInstructions: [
+            ["COMPASS HEIGHTS", "Walk for 298m to path", "4 min (298 m)"],
+            ["SENGKANG STN", "Walk for 9232327m to SENGKANG MRT", "(97 m)"],
+            [
+              "SERANGOON MRT STATION",
+              "Take and alight at PAYA LEBAR MRT STATION",
+              "7 min(4 stops, 4.4km)"
+            ]
+          ]
+        },
+
+        {
+          travelTime: "Approx. travel time: 12 min",
+          cost: "Cost: $1.51",
+          fullInstructions: [
+            ["COMPASS HEIGHTS", "Walk for 298m to path", "4 min (298 m)"],
+            ["SENGKANG STN", "Walk for 97m to SENGKANG MRT", "(97 m)"],
+            [
+              "SERANGOON MRT STATION",
+              "Take and alight at PAYA LEBAR MRT STATION",
+              "7 min(4 stops, 4.23r234km)"
+            ]
+          ]
+        }
+      ],
+      loaded: false
+    };
   },
   methods: {
     async init() {
+      console.log("sdfasf");
       for (var i = 0; i < this.$store.getters.calendarEvents.length - 1; i++) {
-        var trip = {}
-        await this.$http.get(
-            'https://developers.onemap.sg/privateapi/routingsvc/route?start=' + this.$store.getters.calendarEvents[i].latlng +'&end=' + this.$store.getters.calendarEvents[i + 1].latlng +'&routeType=pt&token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjI3MjksInVzZXJfaWQiOjI3MjksImVtYWlsIjoiMTk5OG5hdWZhbEBnbWFpbC5jb20iLCJmb3JldmVyIjpmYWxzZSwiaXNzIjoiaHR0cDpcL1wvb20yLmRmZS5vbmVtYXAuc2dcL2FwaVwvdjJcL3VzZXJcL3Nlc3Npb24iLCJpYXQiOjE1NjA0MDk3MjIsImV4cCI6MTU2MDg0MTcyMiwibmJmIjoxNTYwNDA5NzIyLCJqdGkiOiI0NjUzN2YzZmE4YjEyZTMwZTMzODdlZDZmMzgwZTEzMiJ9.0WQUOPl_s0n9TxNaLondpmVamvAvt0PLFSYzCQlkhpU&date=' + this.$store.getters.calendarEvents[i].date + '&time=10:30:00&mode=TRANSIT&numItineraries=3'
+        //if(this.$store.getters.calendarEvents.id === id){
+        console.log("entered id = " + id);
+        var trip = {};
+        await this.$http
+          .get(
+            "https://developers.onemap.sg/privateapi/routingsvc/route?start=" +
+              this.$store.getters.calendarEvents[i].latlng +
+              "&end=" +
+              this.$store.getters.calendarEvents[i + 1].latlng +
+              "&routeType=pt&token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjI3MjksInVzZXJfaWQiOjI3MjksImVtYWlsIjoiMTk5OG5hdWZhbEBnbWFpbC5jb20iLCJmb3JldmVyIjpmYWxzZSwiaXNzIjoiaHR0cDpcL1wvb20yLmRmZS5vbmVtYXAuc2dcL2FwaVwvdjJcL3VzZXJcL3Nlc3Npb24iLCJpYXQiOjE1NjA0MDk3MjIsImV4cCI6MTdate=" +
+              this.$store.getters.calendarEvents[i].date +
+              "&time=10:30:00&mode=TRANSIT&numItineraries=3"
           )
           .then(res => {
-            var routes = []
+            var routes = [];
             for (var j = 0; j < res.data.plan.itineraries.length; j++) {
-              routes.push(res.data.plan.itineraries[j])
+              routes.push(res.data.plan.itineraries[j]);
             }
             // route instructions
-            var itineraries = []
+            var itineraries = [];
             for (var k = 0; k < routes.length; k++) {
-              var tripInfo = {}
+              var tripInfo = {};
               tripInfo["travelTime"] =
                 "Approx. travel time: " +
                 Math.round(routes[k].duration / 60) +
-                " min"
-              tripInfo["cost"] = "Cost: $" + routes[k].fare
-              var fullInstructions = []
+                " min";
+              tripInfo["cost"] = "Cost: $" + routes[k].fare;
+              var fullInstructions = [];
               for (var l = 0; l < routes[k].legs.length; l++) {
-                var instructions = []
-                var text = ""
-                var steps = {}
+                var instructions = [];
+                var text = "";
+                var steps = {};
                 if (l === 0) {
-                  routes[k].legs[l].from.name = this.$store.getters.calendarEvents[i].name
+                  routes[k].legs[
+                    l
+                  ].from.name = this.$store.getters.calendarEvents[i].name;
                 }
                 if (l === routes[k].legs.length - 1) {
-                  routes[k].legs[l].to.name = this.$store.getters.calendarEvents[i + 1].name
+                  routes[k].legs[
+                    l
+                  ].to.name = this.$store.getters.calendarEvents[i + 1].name;
                 }
                 instructions.push(routes[k].legs[l].from.name);
                 if (routes[k].legs[l].mode === "WALK") {
@@ -75,31 +143,31 @@ export default {
                     "Walk for " +
                     Math.round(routes[k].legs[l].distance) +
                     " m to " +
-                    routes[k].legs[l].to.name
+                    routes[k].legs[l].to.name;
                   if (routes[k].legs[l].to.stopId !== undefined) {
                     var id = routes[k].legs[l].to.stopId.slice(6);
                     if (id.length >= 5) {
-                      text += " (Bus Stop: " + id + ")"
+                      text += " (Bus Stop: " + id + ")";
                     } else {
-                      text += " " + id
+                      text += " " + id;
                     }
                   }
-                  instructions.push(text)
+                  instructions.push(text);
                   instructions.push(
                     "(" + Math.round(routes[k].legs[l].distance) + " m)"
-                  )
+                  );
                 } else {
                   text =
                     "Take " +
                     routes[k].legs[l].routeId +
                     " and alight at " +
                     routes[k].legs[l].to.name +
-                    " "
+                    " ";
                   var id2 = routes[k].legs[l].to.stopId.slice(6);
                   if (id2.length >= 5) {
-                    text += "(Bus Stop: " + id2 + ")"
+                    text += "(Bus Stop: " + id2 + ")";
                   } else {
-                    text += id2
+                    text += id2;
                   }
                   instructions.push(text);
                   instructions.push(
@@ -110,28 +178,33 @@ export default {
                       Math.round((routes[k].legs[l].distance / 1000) * 10) /
                         10 +
                       " km)"
-                  )
+                  );
                 }
-                steps["steps"] = instructions
-                fullInstructions.push(steps)
-                tripInfo["fullInstructions"] = fullInstructions
+                steps["steps"] = instructions;
+                fullInstructions.push(steps);
+                tripInfo["fullInstructions"] = fullInstructions;
               }
-              itineraries.push(tripInfo)
-              trip['itinararies'] = itineraries
+              itineraries.push(tripInfo);
+              trip["itinararies"] = itineraries;
             }
           })
           .catch(err => {
-            console.log(err)
-          })
-          this.tripsInfo.push(trip)
+            console.log(err);
+          });
+        this.tripsInfo.push(trip);
       }
+      //}
+    },
+    pullInstructions(id) {},
+    show() {
+      console.log("this button was pressed");
     }
   },
   mounted() {
-    this.init()
-    this.loaded = true
+    this.init();
+    this.loaded = true;
   }
-}
+};
 </script>
 
 <style scoped>

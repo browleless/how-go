@@ -28,6 +28,8 @@ const getDefaultState = () => {
                 time: '0000'
             }
         ],
+        todayEvents: [{ name: 'COMPASS HEIGHTS', latlng: '1.39205277861036,103.895070061064', date: '2019-06-18', startTime: '00:00:00' }],
+        tmrwEvents: [{ name: 'COMPASS HEIGHTS', latlng: '1.39205277861036,103.895070061064', date: '2019-06-18', startTime: '00:00:00' }],
         user: null,
         gapiCalendarSwitch: null,
         calendarEvents: [],
@@ -107,7 +109,20 @@ const actions = {
                 eventInfo['date'] = events.result.items[i].start.dateTime.slice(0, 10)
                 eventInfo['startTime'] = events.result.items[i].start.dateTime.slice(11, 19)
             }
-            commit('setCalendarEvents', eventInfo)
+            if (eventInfo.date === startDate.slice(0, 10)) {
+                commit('setTodayEvents', eventInfo)
+            } else {
+                commit('setTmrwEvents', eventInfo)
+            }
+        }
+        for (var u = 1; u < this.state.todayEvents.length; u++) {
+            console.log(this.state.todayEvents.length)
+            var loadedEvent = {}
+            loadedEvent['id'] = u;
+            loadedEvent['title'] = this.state.todayEvents[u].name
+            loadedEvent['time'] = this.state.todayEvents[u].startTime
+            loadedEvent['imageURL'] = 'https://upload.wikimedia.org/wikipedia/commons/7/7e/OCBC_Skyway%2C_Gardens_By_The_Bay%2C_Singapore_-_20140809.jpg'
+            commit('addLoadedTrips', loadedEvent)
         }
     }
 }
@@ -127,6 +142,15 @@ const mutations = {
     },
     setAddress(state, payload) {
         state.user.address = payload
+    },
+    setTodayEvents(state, payload) {
+        state.todayEvents.push(payload)
+    },
+    setTmrwEvents(state, payload) {
+        state.tmrwEvents.push(payload)
+    },
+    addLoadedTrips(state, payload) {
+        state.loadedTrips.push(payload)
     }
 }
 
@@ -140,7 +164,7 @@ const getters = {
         return state.user
     },
     calendarEvents(state) {
-        return state.calendarEvents
+        return state.todaysEvents
     },
     gapiCalendarSwitch(state) {
         return state.gapiCalendarSwitch

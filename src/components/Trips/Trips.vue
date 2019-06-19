@@ -1,6 +1,5 @@
 <template>
   <v-container>
-    <TripsInstruction />
     <v-layout row wrap v-for="place in places" :key="place.id" class="mb-3">
       <v-flex xs12 sm10 md8 offset-sm1 offset-md2>
         <v-card class="info">
@@ -21,7 +20,7 @@
                   </div>
                 </v-card-title>
                 <v-card-actions>
-                  <v-btn flat>
+                  <v-btn flat @click ="$emit('pullInstructions', place.id)" to="/routes">
                     <v-icon left>arrow_forward</v-icon>
                     View Route
                   </v-btn>
@@ -45,6 +44,11 @@ export default {
   computed: {
     places() {
       return this.$store.getters.loadedTrips
+    }
+  },
+  methods: {
+    pushed() {
+      this.$router.push("/routes")
     }
   }
 }

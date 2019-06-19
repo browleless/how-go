@@ -23,7 +23,7 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-toolbar>
+    <v-toolbar color="orange lighten-2">
       <v-toolbar-side-icon @click="sideNav = !sideNav" class="hidden-sm-and-up"></v-toolbar-side-icon>
       <v-toolbar-title>
         <router-link to="/" tag="span" style="cursor: pointer">HowGo?</router-link>
