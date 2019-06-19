@@ -55,6 +55,7 @@ const actions = {
         firebase.auth().signInWithCredential(credential)
         .then(async res => {
             currUser = {
+                id: '',
                 name: firebase.auth().currentUser.displayName,
                 email: firebase.auth().currentUser.email,
                 photo: firebase.auth().currentUser.photoURL,
@@ -64,11 +65,12 @@ const actions = {
             }
             const userData = firebase.firestore().collection('users').doc(firebase.auth().currentUser.uid)
             if (res.additionalUserInfo.isNewUser) {
-                currUser['id'] = firebase.auth().currentUser.uid
+                currUser.id = firebase.auth().currentUser.uid
                 userData.set(currUser)
             } else {
                 await userData.get()
                 .then(querySnapshot => {
+                    currUser.id = querySnapshot.data().id
                     currUser.address = querySnapshot.data().address
                     const currDate = dateToday.slice(0, 10)
                     const currTime = dateToday.slice(11, 19)
