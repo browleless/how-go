@@ -51,34 +51,30 @@ const actions = {
         const token = user.getAuthResponse().id_token
         console.log('user', user)
         const credential = firebase.auth.GoogleAuthProvider.credential(token)
+        let currUser = {}
         firebase.auth().signInWithCredential(credential)
         .then(async res => {
-            let currUser = {}
+            currUser = {
+                name: firebase.auth().currentUser.displayName,
+                email: firebase.auth().currentUser.email,
+                photo: firebase.auth().currentUser.photoURL,
+                address: {
+                    full: ''
+                }
+            }
             const userData = firebase.firestore().collection('users').doc(firebase.auth().currentUser.uid)
             if (res.additionalUserInfo.isNewUser) {
-                currUser = {
-                    id: firebase.auth().currentUser.uid,
-                    name: firebase.auth().currentUser.displayName,
-                    email: firebase.auth().currentUser.email,
-                    photo: firebase.auth().currentUser.photoURL,
-                    address: {
-                        full: ''
-                    }
-                }
+                currUser['id'] = firebase.auth().currentUser.uid
                 userData.set(currUser)
             } else {
-                const currDate = dateToday.slice(0, 10)
-                const currTime = dateToday.slice(11, 19)
-                userData.update({ 
-                    'address.date': currDate,
-                    'address.startTime': currTime,
-                })
                 await userData.get()
                 .then(querySnapshot => {
-                    currUser = querySnapshot.data()
-                    if (currUser.address.name) {
-                        commit('setCalendarEvents', currUser.address)
-                    }
+                    currUser.address = querySnapshot.data().address
+                    const currDate = dateToday.slice(0, 10)
+                    const currTime = dateToday.slice(11, 19)
+                    currUser.address.date = currDate
+                    currUser.address.startTime = currTime
+                    userData.update(currUser)
                 })
             }
             console.log(currUser)
