@@ -3,31 +3,12 @@ import Vuex from 'vuex'
 import axios from 'axios'
 import * as firebase from 'firebase'
 import createPersistedState from 'vuex-persistedstate'
+import setimmediate from 'setimmediate'
 
 Vue.use(Vuex)
 
 const getDefaultState = () => {
     return {
-        loadedTrips: [
-            {
-                imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/7/7e/OCBC_Skyway%2C_Gardens_By_The_Bay%2C_Singapore_-_20140809.jpg',
-                id: '1',
-                title: 'Gardens By The Bay',
-                time: '0000'
-            },
-            {
-                imageUrl: 'http://static.asiawebdirect.com/m/phuket/portals/www-singapore-com/homepage/top10/top10-attractions-sentosa/pagePropertiesImage/sentosa-island-singapore.jpg.jpg',
-                id: '2',
-                title: 'Sentosa',
-                time: '0000'
-            },
-            {
-                imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Presenting..._the_real_ION_%288200217734%29.jpg/1280px-Presenting..._the_real_ION_%288200217734%29.jpg',
-                id: '3',
-                title: 'Orchard Road',
-                time: '0000'
-            }
-        ],
         todayEvents: [],
         tmrwEvents: [],
         user: null,
@@ -87,27 +68,9 @@ const actions = {
                 commit('setUser', currUser)
             })
             .then(() => {
-                let sliceIdx = 0
-                for (var u = 1; u < this.state.todayEvents.length; u++) {
-                    if (this.state.todayEvents[u].startTime < currTime) {
-                        sliceIdx = u
-                    }
-                    let loadedEvent = {}
-                    loadedEvent['id'] = u;
-                    loadedEvent['title'] = this.state.todayEvents[u].name
-                    loadedEvent['time'] = this.state.todayEvents[u].startTime
-                    loadedEvent['imageURL'] = 'https://upload.wikimedia.org/wikipedia/commons/7/7e/OCBC_Skyway%2C_Gardens_By_The_Bay%2C_Singapore_-_20140809.jpg'
-                    commit('addLoadedTrips', loadedEvent)
+                if (flag) {
+                    commit('shiftTodayHome')
                 }
-                for (var o = 1; o < this.state.tmrwEvents.length; o++) {
-                    let loadedEvent = {}
-                    loadedEvent['id'] = o;
-                    loadedEvent['title'] = this.state.tmrwEvents[o].name
-                    loadedEvent['time'] = this.state.tmrwEvents[o].startTime
-                    loadedEvent['imageURL'] = 'https://upload.wikimedia.org/wikipedia/commons/7/7e/OCBC_Skyway%2C_Gardens_By_The_Bay%2C_Singapore_-_20140809.jpg'
-                    commit('addLoadedTrips', loadedEvent)
-                }
-                commit('sliceTodayEvents', sliceIdx)
             })
         const endDate = new Date(d.getTime() - (d.getTimezoneOffset() * 60000) + 60000 * 60 * 24).toISOString().slice(0, 10)
         const events = await gapi.client.calendar.events.list({
@@ -118,11 +81,24 @@ const actions = {
             singleEvents: 'true'
         })
         console.log(events)
+        const GoogleImages = require('google-images')
+        const client = new GoogleImages('010327027899987409234:euxsclkbdw4', 'AIzaSyBPxJ-Fh41K9DiIjVPXz6-n4-c9gXSjlGc')
+        var flag = false
         for (var i = 0; i < events.result.items.length; i++) {
             var eventInfo = {}
             if (events.result.items[i].location) {
-                const postalCode = events.result.items[i].location.slice(-6)
-                await axios.get('https://developers.onemap.sg/commonapi/search?searchVal=' + postalCode + '&returnGeom=Y&getAddrDetails=N&pageNum=1')
+                eventInfo['date'] = events.result.items[i].start.dateTime.slice(0, 10)
+                eventInfo['startTime'] = events.result.items[i].start.dateTime.slice(11, 19)
+                if (eventInfo.startTime < currTime && flag) {
+                    continue
+                }
+                var searchVal = events.result.items[i].location
+                if (!isNaN(searchVal.slice(-6))) {
+                    searchVal = searchVal.slice(-6)
+                } else if (searchVal.indexOf(',') !== -1) {
+                    searchVal = searchVal.slice(0, searchVal.indexOf(','))
+                }
+                await axios.get('https://developers.onemap.sg/commonapi/search?searchVal=' + searchVal + '&returnGeom=Y&getAddrDetails=N&pageNum=1')
                     .then(res => {
                         eventInfo['name'] = res.data.results[0].SEARCHVAL
                         eventInfo['latlng'] = res.data.results[0].LATITUDE + ',' + res.data.results[0].LONGITUDE
@@ -130,10 +106,20 @@ const actions = {
                     .catch(err => {
                         console.log(err)
                     })
-                eventInfo['date'] = events.result.items[i].start.dateTime.slice(0, 10)
-                eventInfo['startTime'] = events.result.items[i].start.dateTime.slice(11, 19)
-
                 if (eventInfo.date === currDate) {
+                    if (!flag && eventInfo.startTime < currTime) {
+                        flag = true
+                        commit('setTodayEvents', eventInfo)
+                        continue
+                    }
+                    // await client.search(eventInfo.name, { size: 'huge' })
+                    //     .then(images => {
+                    //         eventInfo['imageUrl'] = images[0].url
+                    //         console.log('images success', images)
+                    //     })
+                    //     .catch(err => {
+                    //         console.log(err)
+                    //     })
                     commit('setTodayEvents', eventInfo)
                 } else {
                     commit('setTmrwEvents', eventInfo)
@@ -162,9 +148,6 @@ const mutations = {
     setTodayEvents(state, payload) {
         state.todayEvents.push(payload)
     },
-    sliceTodayEvents(state, payload) {
-        state.todayEvents = state.todayEvents.slice(payload)
-    },
     setTmrwEvents(state, payload) {
         state.tmrwEvents.push(payload)
     },
@@ -179,18 +162,10 @@ const mutations = {
     },
     shiftTmrwHome(state) {
         state.tmrwEvents.shift()
-    },
-    addLoadedTrips(state, payload) {
-        state.loadedTrips.push(payload)
     }
 }
 
 const getters = {
-    loadedTrips(state) {
-        return state.loadedTrips.sort((locationA, locationB) => {
-            return locationA.time > locationB.time
-        })
-    },
     user(state) {
         return state.user
     },

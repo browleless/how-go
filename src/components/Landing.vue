@@ -28,56 +28,75 @@
 <script>
 export default {
   name: "Landing",
-  computed: {
-    places() {
-      return this.$store.getters.loadedTrips;
+  data() {
+    return {
+      places: [
+        {
+          imageUrl:
+            "https://upload.wikimedia.org/wikipedia/commons/7/7e/OCBC_Skyway%2C_Gardens_By_The_Bay%2C_Singapore_-_20140809.jpg",
+          id: "1",
+          title: "Gardens By The Bay"
+        },
+        {
+          imageUrl:
+            "http://static.asiawebdirect.com/m/phuket/portals/www-singapore-com/homepage/top10/top10-attractions-sentosa/pagePropertiesImage/sentosa-island-singapore.jpg.jpg",
+          id: "2",
+          title: "Sentosa"
+        },
+        {
+          imageUrl:
+            "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Presenting..._the_real_ION_%288200217734%29.jpg/1280px-Presenting..._the_real_ION_%288200217734%29.jpg",
+          id: "3",
+          title: "Orchard Road"
+        }
+      ]
     }
   },
   methods: {
     goToTrips() {
-      if(!this.$store.state.isLoggedIn){
+      if (!this.$store.state.isLoggedIn) {
         this.handleClickSignInT()
-      } else{
-        this.$router.push("/trips");
+      } else {
+        this.$router.push("/trips")
       }
     },
-    goToReminders(){
-      if(!this.$store.state.isLoggedIn){
+    goToReminders() {
+      if (!this.$store.state.isLoggedIn) {
         this.handleClickSignInR()
-      } else{
-        this.$router.push("/reminders");
+      } else {
+        this.$router.push("/reminders")
       }
     },
     handleClickSignInT() {
       this.$gAuth
         .signIn()
         .then(payload => {
-          this.$store.dispatch("signIn", payload);
-          this.$store.state.isLoggedIn = this.$gAuth.isAuthorized;
-          this.$router.push("/trips");
+          this.$store.dispatch("signIn", payload)
+          this.$store.state.isLoggedIn = this.$gAuth.isAuthorized
+          this.$router.push("/trips")
         })
 
         .catch(error => {
           // On fail do something
-          console.log(error);
-        });
+          console.log(error)
+        })
     },
     handleClickSignInR() {
       this.$gAuth
         .signIn()
         .then(payload => {
-          this.$store.dispatch("signIn", payload);
-          this.$store.state.isLoggedIn = this.$gAuth.isAuthorized;
-          this.$router.push("/reminders");
+          this.$store.dispatch("signIn", payload)
+          this.$store.state.isLoggedIn = this.$gAuth.isAuthorized
+          this.$router.push("/reminders")
         })
 
         .catch(error => {
           // On fail do something
-          console.log(error);
-        });
-    },
+          console.log(error)
+        })
+    }
   }
-};
+}
 </script>
 <style scoped>
 .title {
