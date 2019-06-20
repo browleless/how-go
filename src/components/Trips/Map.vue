@@ -20,12 +20,16 @@ export default {
     return {
       url: "http://{s}.tile.osm.org/{z}/{x}/{y}.png",
       attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-      center: latLng(1.3521, 103.8198),
+      center: L.latLng(1.3521, 103.8198),
       zoom: 12
     };
   },
 
-  mounted() { console.log("sex in the citys")},
+  mounted() {
+    const map = this.$refs.map.mapObject
+    map.zoomControl.remove()
+    L.control.zoom({ position:'topright' }).addTo(map);
+  },
 
   methods: {
     // insertPolyline: function() {

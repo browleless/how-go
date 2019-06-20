@@ -47,6 +47,8 @@ const actions = {
         // On success do something, refer to https://developers.google.com/api-client-library/javascript/reference/referencedocs#googleusergetid
         const d = new Date()
         const dateToday = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString()
+        const currDate = dateToday.slice(0, 10)
+        const currTime = dateToday.slice(11, 19)
         const user = payload.user
         const gapi = payload.gapi
         commit('setGapiCalendarSwitch', gapi.client.calendar.events)
@@ -55,42 +57,63 @@ const actions = {
         const credential = firebase.auth.GoogleAuthProvider.credential(token)
         let currUser = {}
         firebase.auth().signInWithCredential(credential)
-        .then(async res => {
-            currUser = {
-                id: '',
-                name: firebase.auth().currentUser.displayName,
-                email: firebase.auth().currentUser.email,
-                photo: firebase.auth().currentUser.photoURL,
-                address: {
-                    full: ''
+            .then(async res => {
+                currUser = {
+                    id: '',
+                    name: firebase.auth().currentUser.displayName,
+                    email: firebase.auth().currentUser.email,
+                    photo: firebase.auth().currentUser.photoURL,
+                    address: {
+                        full: ''
+                    }
                 }
-            }
-            const userData = firebase.firestore().collection('users').doc(firebase.auth().currentUser.uid)
-            if (res.additionalUserInfo.isNewUser) {
-                currUser.id = firebase.auth().currentUser.uid
-                userData.set(currUser)
-            } else {
-                await userData.get()
-                .then(querySnapshot => {
-                    currUser.id = querySnapshot.data().id
-                    currUser.address = querySnapshot.data().address
-                    const currDate = dateToday.slice(0, 10)
-                    const currTime = dateToday.slice(11, 19)
-                    currUser.address.date = currDate
-                    currUser.address.startTime = currTime
-                    userData.update(currUser)
-                })
-            }
-            commit('setHome', currUser.address)
-            console.log(currUser)
-            commit('setUser', currUser)
-        })
-        const startDate = dateToday.slice(0, -5)
-        const endDate = new Date(d.getTime() - (d.getTimezoneOffset() * 60000) + 60000 * 60 * 24).toISOString().slice(0, -13)
+                const userData = firebase.firestore().collection('users').doc(firebase.auth().currentUser.uid)
+                if (res.additionalUserInfo.isNewUser) {
+                    currUser.id = firebase.auth().currentUser.uid
+                    userData.set(currUser)
+                } else {
+                    await userData.get()
+                        .then(querySnapshot => {
+                            currUser.id = querySnapshot.data().id
+                            currUser.address = querySnapshot.data().address
+                            currUser.address.date = currDate
+                            currUser.address.startTime = currTime
+                            userData.update(currUser)
+                        })
+                }
+                console.log(currUser)
+                commit('setTodayHome', currUser.address)
+                commit('setTmrwHome', currUser.address)
+                commit('setUser', currUser)
+            })
+            .then(() => {
+                let sliceIdx = 0
+                for (var u = 1; u < this.state.todayEvents.length; u++) {
+                    if (this.state.todayEvents[u].startTime < currTime) {
+                        sliceIdx = u
+                    }
+                    let loadedEvent = {}
+                    loadedEvent['id'] = u;
+                    loadedEvent['title'] = this.state.todayEvents[u].name
+                    loadedEvent['time'] = this.state.todayEvents[u].startTime
+                    loadedEvent['imageURL'] = 'https://upload.wikimedia.org/wikipedia/commons/7/7e/OCBC_Skyway%2C_Gardens_By_The_Bay%2C_Singapore_-_20140809.jpg'
+                    commit('addLoadedTrips', loadedEvent)
+                }
+                for (var o = 1; o < this.state.tmrwEvents.length; o++) {
+                    let loadedEvent = {}
+                    loadedEvent['id'] = o;
+                    loadedEvent['title'] = this.state.tmrwEvents[o].name
+                    loadedEvent['time'] = this.state.tmrwEvents[o].startTime
+                    loadedEvent['imageURL'] = 'https://upload.wikimedia.org/wikipedia/commons/7/7e/OCBC_Skyway%2C_Gardens_By_The_Bay%2C_Singapore_-_20140809.jpg'
+                    commit('addLoadedTrips', loadedEvent)
+                }
+                commit('sliceTodayEvents', sliceIdx)
+            })
+        const endDate = new Date(d.getTime() - (d.getTimezoneOffset() * 60000) + 60000 * 60 * 24).toISOString().slice(0, 10)
         const events = await gapi.client.calendar.events.list({
             calendarId: 'primary',
-            timeMin: startDate + '+08:00',
-            timeMax: endDate + '23:59:59+08:00',
+            timeMin: currDate + 'T00:00:00+08:00',
+            timeMax: endDate + 'T23:59:59+08:00',
             orderBy: 'startTime',
             singleEvents: 'true'
         })
@@ -109,31 +132,13 @@ const actions = {
                     })
                 eventInfo['date'] = events.result.items[i].start.dateTime.slice(0, 10)
                 eventInfo['startTime'] = events.result.items[i].start.dateTime.slice(11, 19)
-                
-                if (eventInfo.date === startDate.slice(0, 10)) {
+
+                if (eventInfo.date === currDate) {
                     commit('setTodayEvents', eventInfo)
                 } else {
                     commit('setTmrwEvents', eventInfo)
                 }
             }
-        }
-        for (var u = 1; u < this.state.todayEvents.length; u++) {
-            console.log(this.state.todayEvents.length)
-            let loadedEvent = {}
-            loadedEvent['id'] = u;
-            loadedEvent['title'] = this.state.todayEvents[u].name
-            loadedEvent['time'] = this.state.todayEvents[u].startTime
-            loadedEvent['imageURL'] = 'https://upload.wikimedia.org/wikipedia/commons/7/7e/OCBC_Skyway%2C_Gardens_By_The_Bay%2C_Singapore_-_20140809.jpg'
-            commit('addLoadedTrips', loadedEvent)
-        }
-        for (var o = 1; o < this.state.tmrwEvents.length; o++) {
-            console.log(this.state.tmrwEvents.length)
-            let loadedEvent = {}
-            loadedEvent['id'] = o;
-            loadedEvent['title'] = this.state.tmrwEvents[o].name
-            loadedEvent['time'] = this.state.tmrwEvents[o].startTime
-            loadedEvent['imageURL'] = 'https://upload.wikimedia.org/wikipedia/commons/7/7e/OCBC_Skyway%2C_Gardens_By_The_Bay%2C_Singapore_-_20140809.jpg'
-            commit('addLoadedTrips', loadedEvent)
         }
     }
 }
@@ -157,15 +162,22 @@ const mutations = {
     setTodayEvents(state, payload) {
         state.todayEvents.push(payload)
     },
+    sliceTodayEvents(state, payload) {
+        state.todayEvents = state.todayEvents.slice(payload)
+    },
     setTmrwEvents(state, payload) {
         state.tmrwEvents.push(payload)
     },
-    setHome(state, payload) {
+    setTodayHome(state, payload) {
         state.todayEvents.unshift(payload)
+    },
+    shiftTodayHome(state) {
+        state.todayEvents.shift()
+    },
+    setTmrwHome(state, payload) {
         state.tmrwEvents.unshift(payload)
     },
-    shiftHome(state) {
-        state.todayEvents.shift()
+    shiftTmrwHome(state) {
         state.tmrwEvents.shift()
     },
     addLoadedTrips(state, payload) {
@@ -182,12 +194,11 @@ const getters = {
     user(state) {
         return state.user
     },
-    calendarEvents(state) {
-        if(today){
-            return state.tmrwEvents
-        } else{
-            return state.tmrwEvents
-        }
+    todayEvents(state) {
+        return state.todayEvents
+    },
+    tmrwEvents(state) {
+        return state.tmrwEvents
     },
     gapiCalendarSwitch(state) {
         return state.gapiCalendarSwitch

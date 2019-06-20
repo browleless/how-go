@@ -5,8 +5,8 @@
     <v-layout row wrap>
       <v-flex xs12 class="pt-4 pb-1">
         <v-carousel>
-          <v-carousel-item v-for="place in places" :key="place.id" :src="place.imageUrl">
-            <div class="title">{{ place.title }}</div>
+          <v-carousel-item v-for="place in places.slice(1)" :key="place.index" :src="place.imageUrl">
+            <div class="title">{{ place.name }}</div>
           </v-carousel-item>
         </v-carousel>
       </v-flex>
@@ -24,7 +24,7 @@ export default {
   name: "Home",
   computed: {
     places() {
-      return this.$store.getters.loadedTrips;
+      return this.$store.getters.todayEvents;
     }
   }
 };

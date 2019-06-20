@@ -131,8 +131,12 @@ export default {
               .doc(this.$store.getters.user.id)
               .update({ address: completedAddress })
             this.$store.commit('setAddress', completedAddress)
-            this.$store.commit('shiftHome')
-            this.$store.commit('setHome', completedAddress)
+            if (this.$store.getters.todayEvents[0].full || this.$store.getters.todayEvents[0].full === '') {
+              this.$store.commit('shiftTodayHome')
+              this.$store.commit('setTodayHome', completedAddress)
+            }
+            this.$store.commit('shiftTmrwHome')
+            this.$store.commit('setTmrwHome', completedAddress)
             this.type = "success"
             this.alertText = "Successfully updated Address!"
           } else {
