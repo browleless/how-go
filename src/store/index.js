@@ -112,7 +112,7 @@ const actions = {
                         commit('setTodayEvents', eventInfo)
                         continue
                     }
-                    // await client.search(eventInfo.name, { size: 'huge' })
+                    // await client.search(events.result.items[i].location, { size: 'huge' })
                     //     .then(images => {
                     //         eventInfo['imageUrl'] = images[0].url
                     //         console.log('images success', images)
