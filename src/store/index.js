@@ -89,9 +89,6 @@ const actions = {
             if (events.result.items[i].location) {
                 eventInfo['date'] = events.result.items[i].start.dateTime.slice(0, 10)
                 eventInfo['startTime'] = events.result.items[i].start.dateTime.slice(11, 19)
-                if (eventInfo.startTime < currTime && flag) {
-                    continue
-                }
                 var searchVal = events.result.items[i].location
                 if (!isNaN(searchVal.slice(-6))) {
                     searchVal = searchVal.slice(-6)
@@ -107,8 +104,12 @@ const actions = {
                         console.log(err)
                     })
                 if (eventInfo.date === currDate) {
-                    if (!flag && eventInfo.startTime < currTime) {
-                        flag = true
+                    if (eventInfo.startTime < currTime) {
+                        if (!flag) {
+                            flag = true
+                        } else {
+                            commit('shiftTodayHome')
+                        }
                         commit('setTodayEvents', eventInfo)
                         continue
                     }
