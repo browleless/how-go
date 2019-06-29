@@ -16,8 +16,8 @@ const getDefaultState = () => {
         calendarEvents: [],
         isLoggedIn: false,
         today: true,
-        tomorrow: false
-
+        tomorrow: false,
+        currIdx: null
     }
 }
 
@@ -73,6 +73,12 @@ const actions = {
             .then(() => {
                 if (flag) {
                     commit('shiftTodayHome')
+                }
+                for (var i = 0; i < this.state.todayEvents.length; i++) {
+                    this.state.todayEvents[i]['id'] = i
+                }
+                for (var j = 0; j < this.state.tmrwEvents.length; j++) {
+                    this.state.tmrwEvents[j]['id'] = j
                 }
             })
         const endDate = new Date(d.getTime() - (d.getTimezoneOffset() * 60000) + 60000 * 60 * 24).toISOString().slice(0, 10)
@@ -174,6 +180,9 @@ const mutations = {
     setTmrwState(state) {
         state.today = false,
         state.tomorrow = true
+    },
+    setCurrIdx(state, payload) {
+        state.currIdx = payload
     }
 }
 
@@ -196,6 +205,9 @@ const getters = {
         } else {
             return state.tmrwEvents
         }
+    },
+    currIdx(state) {
+        return state.currIdx
     }
 }
 

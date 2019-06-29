@@ -13,6 +13,7 @@
     "firebase": "^6.1.1",
     "google-images": "^2.1.0",
     "leaflet": "^1.5.1",
+    "polyline-encoded": "0.0.8",
     "setimmediate": "^1.0.5",
     "vue": "^2.6.10",
     "vue-google-oauth2": "https://github.com/browleless/vue-google-oauth2-modified/tarball/master",

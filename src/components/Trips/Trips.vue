@@ -25,7 +25,7 @@
                   </div>
                 </v-card-title>
                 <v-card-actions>
-                  <v-btn flat @click="$emit('pullInstructions', place.id)" to="/routes">
+                  <v-btn flat @click.native="updateCurrIdx(place.id - 1)">
                     <v-icon left>arrow_forward</v-icon>View Route
                   </v-btn>
                 </v-card-actions>
@@ -54,6 +54,10 @@ export default {
       },
       loadTomorrow() {
         this.$store.commit('setTmrwState')
+      },
+      updateCurrIdx(id) {
+        this.$store.commit('setCurrIdx', id)
+        this.$router.push('/routes')
       }
     }
 };

@@ -1,10 +1,10 @@
 <template>
   <div>
     <v-flex>
-      <Map/>
+      <Map ref="map"/>
     </v-flex>
     <v-flex xs4 class="overlay">
-      <TripsInstruction/>
+      <TripsInstruction ref="instruction" @render-polyline="renderPolyline"/>
     </v-flex>
   </div>
 </template>
@@ -18,10 +18,13 @@ export default {
     TripsInstruction,
     Map
   },
-  computed: {
-    places() {
-      return this.$store.getters.loadedTrips;
+  methods: {
+    renderPolyline(latlngs) {
+      this.$refs.map.insertPolyline(latlngs)
     }
+  },
+  mounted() {
+    this.$refs.instruction.init(this.$store.getters.currIdx)
   }
 };
 </script>
