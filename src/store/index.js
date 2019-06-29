@@ -14,7 +14,10 @@ const getDefaultState = () => {
         user: null,
         gapiCalendarSwitch: null,
         calendarEvents: [],
-        isLoggedIn: false
+        isLoggedIn: false,
+        today: true,
+        tomorrow: false
+
     }
 }
 
@@ -163,6 +166,14 @@ const mutations = {
     },
     shiftTmrwHome(state) {
         state.tmrwEvents.shift()
+    },
+    setTodayState(state) {
+        state.today = true,
+        state.tomorrow = false
+    },
+    setTmrwState(state) {
+        state.today = false,
+        state.tomorrow = true
     }
 }
 
@@ -178,6 +189,13 @@ const getters = {
     },
     gapiCalendarSwitch(state) {
         return state.gapiCalendarSwitch
+    },
+    calendarEvents(state) { 
+        if (state.today) {
+            return state.todayEvents
+        } else {
+            return state.tmrwEvents
+        }
     }
 }
 
