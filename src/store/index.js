@@ -47,6 +47,7 @@ const actions = {
                     name: firebase.auth().currentUser.displayName,
                     email: firebase.auth().currentUser.email,
                     photo: firebase.auth().currentUser.photoURL,
+                    scheduledEvents: '',
                     address: {
                         full: ''
                     }
@@ -54,12 +55,14 @@ const actions = {
                 const userData = firebase.firestore().collection('users').doc(firebase.auth().currentUser.uid)
                 if (res.additionalUserInfo.isNewUser) {
                     currUser.id = firebase.auth().currentUser.uid
+                    currUser.scheduledEvents = false
                     userData.set(currUser)
                 } else {
                     await userData.get()
                         .then(querySnapshot => {
                             currUser.id = querySnapshot.data().id
                             currUser.address = querySnapshot.data().address
+                            currUser.scheduledEvents = querySnapshot.data().scheduledEvents
                             currUser.address.date = currDate
                             currUser.address.startTime = currTime
                             userData.update(currUser)
@@ -183,6 +186,9 @@ const mutations = {
     },
     setCurrIdx(state, payload) {
         state.currIdx = payload
+    },
+    setUserScheduledEvents(state) {
+        state.user.scheduledEvents = !state.user.scheduledEvents
     }
 }
 

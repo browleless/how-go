@@ -2,19 +2,32 @@
   <div>
     <l-map ref="map" style="position: absolute" :center="center" :zoom="zoom">
       <l-tile-layer :url="url" :attribution="attribution"/>
+      <l-marker v-for="marker in markers" :lat-lng="marker" :key="marker.id">
+      </l-marker>
     </l-map>
   </div>
 </template>
 
 <script>
-import { LMap, LPolyline, LTileLayer } from "vue2-leaflet"
+import { LMap, LTileLayer, LMarker } from "vue2-leaflet"
+
+import { Icon } from 'leaflet'
+
+delete Icon.Default.prototype._getIconUrl
+
+Icon.Default.imagePath = '.'
+Icon.Default.mergeOptions({
+  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
+  iconUrl: require('leaflet/dist/images/marker-icon.png'),
+  shadowUrl: require('leaflet/dist/images/marker-shadow.png')
+})
 
 export default {
   name: "Map",
   components: {
     LMap,
-    LPolyline,
-    LTileLayer
+    LTileLayer,
+    LMarker
   },
   data() {
     return {
@@ -22,8 +35,9 @@ export default {
       attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
       center: L.latLng(1.3521, 103.8198),
       zoom: 12,
-      polyline: null
-    };
+      polyline: null,
+      markers: []
+    }
   },
 
   mounted() {
@@ -36,6 +50,7 @@ export default {
     insertPolyline(points) {
       if (this.polyline !== null) {
         this.removePolyline()
+        this.markers = []
       }
       var map = this.$refs.map.mapObject
       this.polyline = L.polyline(points, {
@@ -45,6 +60,8 @@ export default {
         lineJoin: "round"
       })
       this.polyline.addTo(map)
+      this.markers.push(points[0])
+      this.markers.push(points[points.length - 1])
       map.fitBounds(points)
     },
     removePolyline() {
