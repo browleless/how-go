@@ -12,7 +12,6 @@ const getDefaultState = () => {
         todayEvents: [],
         tmrwEvents: [],
         user: null,
-        gapiCalendarSwitch: null,
         calendarEvents: [],
         isLoggedIn: false,
         today: true,
@@ -35,7 +34,6 @@ const actions = {
         const currTime = dateToday.slice(11, 19)
         const user = payload.user
         const gapi = payload.gapi
-        commit('setGapiCalendarSwitch', gapi.client.calendar.events)
         const token = user.getAuthResponse().id_token
         console.log('user', user)
         const credential = firebase.auth.GoogleAuthProvider.credential(token)
@@ -149,9 +147,6 @@ const mutations = {
     setUser(state, payload) {
         state.user = payload
     },
-    setGapiCalendarSwitch(state, payload) {
-        state.gapiCalendarSwitch = payload
-    },
     setCalendarEvents(state, payload) {
         state.calendarEvents.push(payload)
     },
@@ -187,8 +182,8 @@ const mutations = {
     setCurrIdx(state, payload) {
         state.currIdx = payload
     },
-    setUserScheduledEvents(state) {
-        state.user.scheduledEvents = !state.user.scheduledEvents
+    setUserScheduledEvents(state, payload) {
+        state.user.scheduledEvents = payload
     }
 }
 
@@ -201,9 +196,6 @@ const getters = {
     },
     tmrwEvents(state) {
         return state.tmrwEvents
-    },
-    gapiCalendarSwitch(state) {
-        return state.gapiCalendarSwitch
     },
     calendarEvents(state) { 
         if (state.today) {
