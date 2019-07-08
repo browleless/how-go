@@ -41,7 +41,11 @@
           value="true"
           :dismissible="scheduled"
           :type="scheduled ? 'success' : 'warning'"
-        >{{ alertText }}</v-alert>
+        >{{ alertText }}
+        <countdown class="subheading font-weight-medium" v-if="this.$store.getters.user.scheduledEvents" :time="timeTillNextScheduling">
+            <template slot-scope="props">{{ props.days }} days, {{ props.hours }} hours, {{ props.minutes }} minutes and {{ props.seconds }} seconds</template>
+        </countdown>
+        </v-alert>
         <v-sheet height="700">
           <!-- now is normally calculated by itself, but to keep the calendar in this date range to view events -->
           <v-calendar
@@ -61,12 +65,13 @@
                   v-if="event.time"
                   :key="event.id"
                   :style="{ top: timeToY(event.time) + 'px', height: minutesToPixels(event.duration) + 'px' }"
-                  class="my-event with-time"
+                  :class="event.id === 1 ? 'line' : event.id === 2 ? 'lineCircle' : 'my-event with-time'"
                   @click="open(event)"
                 >
                 {{ event.title }}
-                <br>
-                {{ event.twelveHrTime + ', ' + event.location }}
+                <div v-if="event.twelveHrTime">
+                  {{ event.twelveHrTime + ', ' + event.location }}
+                </div>
                 </div>
               </template>
             </template>
@@ -112,8 +117,11 @@ export default {
     },
     alertText() {
       return this.$store.getters.user.scheduledEvents 
-      ? 'Hurray! Reminders are already scheduled, check back next week!' 
+      ? 'Hurray! Reminders are already scheduled, check back in '
       : 'Reminders have yet to been scheduled, do so to get to your destinations punctually!'
+    },
+    timeTillNextScheduling() {
+      return this.$store.getters.user.nextSchedulingTime - Date.now()
     }
   },
   mounted () {
@@ -132,7 +140,8 @@ export default {
       this.showForm = !this.showForm
     },
     async updateCalendar() {
-      this.events = []
+      const dateTimeNow = new Date().toString()
+      this.events = [{ date: currDate, time: dateTimeNow.slice(15, 24), duration: 0, id: 1 }, { date: currDate, time: dateTimeNow.slice(15, 24), duration: 0, id: 2 }]
       const events = await this.$gAuth.gapi.client.calendar.events.list({
         calendarId: 'primary',
         timeMin: currDate + 'T00:00:00+08:00',
@@ -334,6 +343,7 @@ export default {
               }
           }
           this.$store.commit('setUserScheduledEvents', true)
+          this.$store.commit('setUserNextSchedulingTime')
           firebase.firestore().collection('users').doc(this.$store.getters.user.id).update(this.$store.getters.user)
           this.updateCalendar()
           this.promptForm()
@@ -400,5 +410,25 @@ export default {
       right: 4px;
       margin-right: 0px;
     }
+  }
+
+  .line {
+    position: absolute;
+    z-index: 504;
+    border-top: #ea4335 solid 2px;
+    left: 0;
+    right: -1px;
+    pointer-events: none;
+  }
+
+  .lineCircle {
+    background: #ea4335;
+    border-radius: 50%;
+    position: absolute;
+    height: 12px !important;
+    margin-left: -6.5px;
+    margin-top: -5px;
+    width: 12px;
+    z-index: 504;
   }
 </style>

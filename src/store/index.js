@@ -45,7 +45,8 @@ const actions = {
                     name: firebase.auth().currentUser.displayName,
                     email: firebase.auth().currentUser.email,
                     photo: firebase.auth().currentUser.photoURL,
-                    scheduledEvents: '',
+                    scheduledEvents: false,
+                    nextSchedulingTime: 0,
                     address: {
                         full: ''
                     }
@@ -53,7 +54,6 @@ const actions = {
                 const userData = firebase.firestore().collection('users').doc(firebase.auth().currentUser.uid)
                 if (res.additionalUserInfo.isNewUser) {
                     currUser.id = firebase.auth().currentUser.uid
-                    currUser.scheduledEvents = false
                     userData.set(currUser)
                 } else {
                     await userData.get()
@@ -61,8 +61,12 @@ const actions = {
                             currUser.id = querySnapshot.data().id
                             currUser.address = querySnapshot.data().address
                             currUser.scheduledEvents = querySnapshot.data().scheduledEvents
+                            currUser.nextSchedulingTime = querySnapshot.data().nextSchedulingTime
                             currUser.address.date = currDate
                             currUser.address.startTime = currTime
+                            if (currUser.nextSchedulingTime < Date.now()) {
+                                currUser.scheduledEvents = false
+                            }
                             userData.update(currUser)
                         })
                 }
@@ -184,6 +188,10 @@ const mutations = {
     },
     setUserScheduledEvents(state, payload) {
         state.user.scheduledEvents = payload
+    },
+    setUserNextSchedulingTime(state) {
+        const today = new Date()
+        state.user.nextSchedulingTime = new Date(today.setDate(today.getDate() + 6)).setHours(23, 59, 59)
     }
 }
 
