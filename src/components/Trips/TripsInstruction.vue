@@ -9,7 +9,7 @@
               <v-card-text class="title">Route Options</v-card-text>
             </v-toolbar-title>
             <template v-slot:extension>
-              <v-radio-group class="mt-2" v-model="sortBy" row>
+              <v-radio-group class="pt-3" v-model="sortBy" row>
                 <div class="pr-1">Sort By:</div>
                 <v-radio 
                   color="black" 
@@ -41,26 +41,49 @@
               @click.native="$emit('render-polyline', trip.polyline)"
             >
               <template v-slot:header>
-                <div v-if="trip.travelTime < 3600">
-                  Approx. travel time: {{ Math.floor(trip.travelTime / 60) }} min Cost: ${{ trip.cost }}
-                </div>
-                <div v-if="trip.travelTime >= 3600">
-                  Approx. travel time: {{ Math.floor(trip.travelTime / 3600) }} hr {{ Math.floor((trip.travelTime - Math.floor(trip.travelTime / 3600) * 3600) / 60) }} min Cost: ${{ trip.cost }}
-                </div>
+                <v-layout style="height: 70px" column>
+                  <v-layout class="pb-3" row wrap>
+                    <v-flex>
+                      <div v-if="trip.travelTime < 3600">
+                        Approx. travel time: {{ Math.floor(trip.travelTime / 60) }} min
+                      </div>
+                      <div v-if="trip.travelTime >= 3600">
+                        Approx. travel time: {{ Math.floor(trip.travelTime / 3600) }} hr {{ Math.floor((trip.travelTime - Math.floor(trip.travelTime / 3600) * 3600) / 60) }} min
+                      </div>
+                    </v-flex>
+                    <v-flex class="text-xs-right pr-3" style="color: #008000; font-weight: bold">
+                      ${{ trip.cost }}
+                    </v-flex>
+                  </v-layout>
+                  <v-flex class="text-xs-left">
+                    <span
+                      v-for="(icon, index) in trip.transferIcons" 
+                      :key="icon.id"
+                    >
+                      <v-icon >{{ icon }}</v-icon>
+                      <span v-if="index % 2 === 0">
+                        {{ trip.transitInfo[index] }}
+                      </span>
+                    </span>
+                  </v-flex>
+                </v-layout>  
               </template>
-              <v-timeline dense light align-top>
-                <v-timeline-item
-                  v-for="instructions in trip.fullInstructions"
-                  :key="instructions.index"
-                  color="red lighten-2"
-                  small
-                >
-                  <v-card class="elevation-5">
-                    <v-card-title class="subheading">{{instructions[0]}}</v-card-title>
-                    <v-card-text>{{instructions[1]}} {{instructions[2]}}</v-card-text>
-                  </v-card>
-                </v-timeline-item>
-              </v-timeline>
+              <div class="pl-3 pr-4" style="overflow-y: scroll; height: 400px">
+                <v-timeline dense light align-top>
+                  <v-timeline-item
+                    v-for="(instructions, index) in trip.fullInstructions"
+                    :key="instructions.index"
+                    :icon="trip.routeIcons[index]"
+                    color="red lighten-2"
+                    fill-dot
+                  >
+                    <v-card class="elevation-5">
+                      <v-card-title class="subheading">{{instructions[0]}}</v-card-title>
+                      <v-card-text>{{instructions[1]}} {{instructions[2]}}</v-card-text>
+                    </v-card>
+                  </v-timeline-item>
+                </v-timeline>
+              </div>
             </v-expansion-panel-content>
           </v-expansion-panel>
         </v-card>
@@ -130,6 +153,7 @@ export default {
             '&mode=TRANSIT&numItineraries=3'
         )
         .then(res => {
+          console.log(res)
           const polyline = require('polyline-encoded')
           var routes = []
 
@@ -139,6 +163,9 @@ export default {
           }
           for (var k = 0; k < routes.length; k++) {
             var tripInfo = {}
+            var routeIcons = []
+            var transferIcons = []
+            var transitInfo = []
 
             // route summary
             tripInfo['travelTime'] = routes[k].duration
@@ -183,7 +210,9 @@ export default {
                 instructions.push(
                   '(' + Math.round(routes[k].legs[l].distance) + ' m)'
                 )
+                routeIcons.push('directions_walk')
               } else {
+                let icon = ''
                 text =
                   'Take ' +
                   routes[k].legs[l].routeId +
@@ -193,8 +222,10 @@ export default {
                 var id2 = routes[k].legs[l].to.stopId.slice(6)
                 if (id2.length >= 5) {
                   text += '(Bus Stop: ' + id2 + ')'
+                  icon = 'directions_bus'
                 } else {
                   text += id2
+                  icon = 'directions_subway'
                 }
                 instructions.push(text)
                 instructions.push(
@@ -205,13 +236,30 @@ export default {
                     Math.round((routes[k].legs[l].distance / 1000) * 10) / 10 +
                     ' km)'
                 )
+                routeIcons.push(icon)
+              }
+              if (routes[k].legs[l].transitLeg) {
+                if (transferIcons.length !== 0) {
+                  transferIcons.push('arrow_right_alt')
+                  transitInfo.push('')
+                }
+                if (routes[k].legs[l].mode === 'SUBWAY') {
+                  transferIcons.push('directions_subway')
+                } else {
+                  transferIcons.push('directions_bus')
+                }
+                transitInfo.push(routes[k].legs[l].routeShortName)
               }
               fullInstructions.push(instructions)
               tripInfo['fullInstructions'] = fullInstructions
+              tripInfo['routeIcons'] = routeIcons
+              tripInfo['transferIcons'] = transferIcons
+              tripInfo['transitInfo'] = transitInfo
               tripInfo['polyline'] = polylineLatLng.flat(1)
             }
             this.itineraries.push(tripInfo)
           }
+          console.log(this.itineraries)
         })
         .catch(() => {
           alert('Onemap API error, please refresh')
