@@ -3,7 +3,7 @@
     <v-flex>
       <Map ref="map"/>
     </v-flex>
-    <v-flex xs4 class="overlay">
+    <v-flex xs12 sm7 md5 lg4 class="overlay">
       <TripsInstruction ref="instruction" @render-polyline="renderPolyline"/>
     </v-flex>
   </div>

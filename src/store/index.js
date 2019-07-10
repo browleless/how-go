@@ -12,7 +12,6 @@ const getDefaultState = () => {
         todayEvents: [],
         tmrwEvents: [],
         user: null,
-        gapiCalendarSwitch: null,
         calendarEvents: [],
         isLoggedIn: false,
         today: true,
@@ -35,7 +34,6 @@ const actions = {
         const currTime = dateToday.slice(11, 19)
         const user = payload.user
         const gapi = payload.gapi
-        commit('setGapiCalendarSwitch', gapi.client.calendar.events)
         const token = user.getAuthResponse().id_token
         console.log('user', user)
         const credential = firebase.auth.GoogleAuthProvider.credential(token)
@@ -47,7 +45,8 @@ const actions = {
                     name: firebase.auth().currentUser.displayName,
                     email: firebase.auth().currentUser.email,
                     photo: firebase.auth().currentUser.photoURL,
-                    scheduledEvents: '',
+                    scheduledEvents: false,
+                    nextSchedulingTime: 0,
                     address: {
                         full: ''
                     }
@@ -55,7 +54,6 @@ const actions = {
                 const userData = firebase.firestore().collection('users').doc(firebase.auth().currentUser.uid)
                 if (res.additionalUserInfo.isNewUser) {
                     currUser.id = firebase.auth().currentUser.uid
-                    currUser.scheduledEvents = false
                     userData.set(currUser)
                 } else {
                     await userData.get()
@@ -63,8 +61,12 @@ const actions = {
                             currUser.id = querySnapshot.data().id
                             currUser.address = querySnapshot.data().address
                             currUser.scheduledEvents = querySnapshot.data().scheduledEvents
+                            currUser.nextSchedulingTime = querySnapshot.data().nextSchedulingTime
                             currUser.address.date = currDate
                             currUser.address.startTime = currTime
+                            if (currUser.nextSchedulingTime < Date.now()) {
+                                currUser.scheduledEvents = false
+                            }
                             userData.update(currUser)
                         })
                 }
@@ -149,9 +151,6 @@ const mutations = {
     setUser(state, payload) {
         state.user = payload
     },
-    setGapiCalendarSwitch(state, payload) {
-        state.gapiCalendarSwitch = payload
-    },
     setCalendarEvents(state, payload) {
         state.calendarEvents.push(payload)
     },
@@ -187,8 +186,12 @@ const mutations = {
     setCurrIdx(state, payload) {
         state.currIdx = payload
     },
-    setUserScheduledEvents(state) {
-        state.user.scheduledEvents = !state.user.scheduledEvents
+    setUserScheduledEvents(state, payload) {
+        state.user.scheduledEvents = payload
+    },
+    setUserNextSchedulingTime(state) {
+        const today = new Date()
+        state.user.nextSchedulingTime = new Date(today.setDate(today.getDate() + 6)).setHours(23, 59, 59)
     }
 }
 
@@ -201,9 +204,6 @@ const getters = {
     },
     tmrwEvents(state) {
         return state.tmrwEvents
-    },
-    gapiCalendarSwitch(state) {
-        return state.gapiCalendarSwitch
     },
     calendarEvents(state) { 
         if (state.today) {

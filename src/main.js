@@ -6,6 +6,7 @@ import { store } from './store'
 import GAuth from 'vue-google-oauth2'
 import * as firebase from 'firebase'
 import axios from 'axios'
+import VueCountdown from '@chenfengyuan/vue-countdown'
 
 const gauthOption = {
   clientId: '857543360628-rrmp7stavqroch9ccf7e4tu2a5m22cg6.apps.googleusercontent.com',
@@ -14,6 +15,7 @@ const gauthOption = {
 }
 
 Vue.prototype.$http = axios
+Vue.component(VueCountdown.name, VueCountdown)
 
 Vue.use(GAuth, gauthOption)
 Vue.config.productionTip = false
