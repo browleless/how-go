@@ -57,13 +57,12 @@
                   </v-layout>
                   <v-flex class="text-xs-left">
                     <span
-                      v-for="(icon, index) in trip.transferIcons" 
-                      :key="icon.id"
+                      v-for="(transit, index) in trip.transitInfo" 
+                      :key="transit.id"
                     >
-                      <v-icon >{{ icon }}</v-icon>
-                      <span v-if="index % 2 === 0">
-                        {{ trip.transitInfo[index] }}
-                      </span>
+                      <v-icon v-if="index !== 0">arrow_right_alt</v-icon>
+                      <v-icon >{{ transit.icon }}</v-icon>
+                      {{ transit.transport }}
                     </span>
                   </v-flex>
                 </v-layout>  
@@ -153,7 +152,6 @@ export default {
             '&mode=TRANSIT&numItineraries=3'
         )
         .then(res => {
-          console.log(res)
           const polyline = require('polyline-encoded')
           var routes = []
 
@@ -164,7 +162,6 @@ export default {
           for (var k = 0; k < routes.length; k++) {
             var tripInfo = {}
             var routeIcons = []
-            var transferIcons = []
             var transitInfo = []
 
             // route summary
@@ -181,6 +178,7 @@ export default {
               // polyline decoding
               polylineLatLng.push(polyline.decode(routes[k].legs[l].legGeometry.points))
               var instructions = []
+              var transit = {}
 
               //name
               if (l === 0) {
@@ -239,27 +237,22 @@ export default {
                 routeIcons.push(icon)
               }
               if (routes[k].legs[l].transitLeg) {
-                if (transferIcons.length !== 0) {
-                  transferIcons.push('arrow_right_alt')
-                  transitInfo.push('')
-                }
-                if (routes[k].legs[l].mode === 'SUBWAY') {
-                  transferIcons.push('directions_subway')
+                if (routes[k].legs[l].mode === 'BUS') {
+                  transit['icon'] = 'directions_bus'
                 } else {
-                  transferIcons.push('directions_bus')
+                  transit['icon'] = 'directions_subway'
                 }
-                transitInfo.push(routes[k].legs[l].routeShortName)
+                transit['transport'] = routes[k].legs[l].routeShortName
+                transitInfo.push(transit)
               }
               fullInstructions.push(instructions)
               tripInfo['fullInstructions'] = fullInstructions
-              tripInfo['routeIcons'] = routeIcons
-              tripInfo['transferIcons'] = transferIcons
               tripInfo['transitInfo'] = transitInfo
+              tripInfo['routeIcons'] = routeIcons
               tripInfo['polyline'] = polylineLatLng.flat(1)
             }
             this.itineraries.push(tripInfo)
           }
-          console.log(this.itineraries)
         })
         .catch(() => {
           alert('Onemap API error, please refresh')
