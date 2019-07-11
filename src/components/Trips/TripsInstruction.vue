@@ -41,7 +41,7 @@
               @click.native="$emit('render-polyline', trip.polyline)"
             >
               <template v-slot:header>
-                <v-layout style="height: 70px" column>
+                <v-layout class="subheading" style="height: 70px" column>
                   <v-layout class="pb-3" row wrap>
                     <v-flex>
                       <div v-if="trip.travelTime < 3600">
@@ -70,15 +70,51 @@
               <div class="pl-3 pr-4" style="overflow-y: scroll; height: 400px">
                 <v-timeline dense light align-top>
                   <v-timeline-item
-                    v-for="(instructions, index) in trip.fullInstructions"
-                    :key="instructions.index"
+                    v-for="(steps, index) in trip.fullInstructions"
+                    :key="steps.index"
                     :icon="trip.routeIcons[index]"
                     color="red lighten-2"
                     fill-dot
                   >
-                    <v-card class="elevation-5">
-                      <v-card-title class="subheading">{{instructions[0]}}</v-card-title>
-                      <v-card-text>{{instructions[1]}} {{instructions[2]}}</v-card-text>
+                    <v-card 
+                      style="border-radius: 10px" class="elevation-5" :color="index === 0 || index === trip.fullInstructions.length - 1 ? '#424242'
+                      : !steps.transport ? '#6981E0' 
+                      : steps.transport === 'EW' ? '#009E52'
+                      : steps.transport === 'NE' ? '#6B3294'
+                      : steps.transport === 'CC' ? '#FCB029'
+                      : steps.transport === 'NS' ? '#F92D38'
+                      : steps.transport === 'DT' ? '#4465B7'
+                      : steps.transport === 'SW' || steps.transport === 'SE' 
+                      || steps.transport === 'PE' || steps.transport === 'PW' 
+                      || steps.transport === 'BP' ? '#668372'
+                      : '#22B5D0'"
+                      dark>
+                        <v-card-title class='title'>
+                          {{steps.instructions[0]}}
+                        </v-card-title>
+                      <v-card-text class="white text--primary subheading">
+                        <div>
+                          {{steps.instructions[1]}}
+                        </div>
+                        <div class="mt-3">
+                          <span 
+                          style="color: white; border-radius: 5px;" 
+                          :style="[index === 0 || index === trip.fullInstructions.length - 1 ? {'background-color': '#424242'}
+                          : !steps.transport ? {'background-color': '#6981E0'} 
+                          : steps.transport === 'EW' ? {'background-color': '#009E52'}
+                          : steps.transport === 'NE' ? {'background-color': '#6B3294'}
+                          : steps.transport === 'CC' ? {'background-color': '#FCB029'}
+                          : steps.transport === 'NS' ? {'background-color': '#F92D38'}
+                          : steps.transport === 'DT' ? {'background-color': '#4465B7'}
+                          : steps.transport === 'SW' || steps.transport === 'SE' 
+                          || steps.transport === 'PE' || steps.transport === 'PW' 
+                          || steps.transport === 'BP' ? {'background-color': '#668372'}
+                          : {'background-color': '#22B5D0'}]"
+                          class="pa-1">
+                            {{steps.instructions[2]}}
+                          </span>
+                        </div>
+                      </v-card-text>
                     </v-card>
                   </v-timeline-item>
                 </v-timeline>
@@ -178,6 +214,7 @@ export default {
               // polyline decoding
               polylineLatLng.push(polyline.decode(routes[k].legs[l].legGeometry.points))
               var instructions = []
+              var legInfo = {}
               var transit = {}
 
               //name
@@ -228,7 +265,7 @@ export default {
                 instructions.push(text)
                 instructions.push(
                   Math.round(routes[k].legs[l].duration / 60) +
-                    ' min(' +
+                    ' min (' +
                     (routes[k].legs[l].intermediateStops.length + 1) +
                     ' stops, ' +
                     Math.round((routes[k].legs[l].distance / 1000) * 10) / 10 +
@@ -245,7 +282,9 @@ export default {
                 transit['transport'] = routes[k].legs[l].routeShortName
                 transitInfo.push(transit)
               }
-              fullInstructions.push(instructions)
+              legInfo['instructions'] = instructions
+              legInfo['transport'] = routes[k].legs[l].route
+              fullInstructions.push(legInfo)
               tripInfo['fullInstructions'] = fullInstructions
               tripInfo['transitInfo'] = transitInfo
               tripInfo['routeIcons'] = routeIcons
