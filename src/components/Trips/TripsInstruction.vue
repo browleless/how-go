@@ -62,7 +62,22 @@
                     >
                       <v-icon v-if="index !== 0">arrow_right_alt</v-icon>
                       <v-icon >{{ transit.icon }}</v-icon>
-                      {{ transit.transport }}
+                      <span 
+                        style="color: white; border-radius: 5px"
+                        :style="[!transit.transport ? {'background-color': '#6981E0'} 
+                        : transit.transport === 'EW' ? {'background-color': '#009E52'}
+                        : transit.transport === 'NE' ? {'background-color': '#6B3294'}
+                        : transit.transport === 'CC' ? {'background-color': '#FCB029'}
+                        : transit.transport === 'NS' ? {'background-color': '#F92D38'}
+                        : transit.transport === 'DT' ? {'background-color': '#4465B7'}
+                        : transit.transport === 'SW' || transit.transport === 'SE' 
+                        || transit.transport === 'PE' || transit.transport === 'PW' 
+                        || transit.transport === 'BP' ? {'background-color': '#668372'}
+                        : {'background-color': '#E0E0E0', 'color': 'inherit'}]"
+                        :class="index === trip.transitInfo.length - 1 ? 'pr-1' : ''"
+                      >
+                        {{ transit.transport }}
+                      </span>
                     </span>
                   </v-flex>
                 </v-layout>  
@@ -77,7 +92,8 @@
                     fill-dot
                   >
                     <v-card 
-                      style="border-radius: 10px" class="elevation-5" :color="index === 0 || index === trip.fullInstructions.length - 1 ? '#424242'
+                      style="border-radius: 10px" class="elevation-5" 
+                      :color="index === 0 || index === trip.fullInstructions.length - 1 ? '#424242'
                       : !steps.transport ? '#6981E0' 
                       : steps.transport === 'EW' ? '#009E52'
                       : steps.transport === 'NE' ? '#6B3294'
@@ -88,29 +104,31 @@
                       || steps.transport === 'PE' || steps.transport === 'PW' 
                       || steps.transport === 'BP' ? '#668372'
                       : '#22B5D0'"
-                      dark>
-                        <v-card-title class='title'>
-                          {{steps.instructions[0]}}
-                        </v-card-title>
+                      dark
+                    >
+                      <v-card-title class='title'>
+                        {{steps.instructions[0]}}
+                      </v-card-title>
                       <v-card-text class="white text--primary subheading">
                         <div>
                           {{steps.instructions[1]}}
                         </div>
                         <div class="mt-3">
                           <span 
-                          style="color: white; border-radius: 5px;" 
-                          :style="[index === 0 || index === trip.fullInstructions.length - 1 ? {'background-color': '#424242'}
-                          : !steps.transport ? {'background-color': '#6981E0'} 
-                          : steps.transport === 'EW' ? {'background-color': '#009E52'}
-                          : steps.transport === 'NE' ? {'background-color': '#6B3294'}
-                          : steps.transport === 'CC' ? {'background-color': '#FCB029'}
-                          : steps.transport === 'NS' ? {'background-color': '#F92D38'}
-                          : steps.transport === 'DT' ? {'background-color': '#4465B7'}
-                          : steps.transport === 'SW' || steps.transport === 'SE' 
-                          || steps.transport === 'PE' || steps.transport === 'PW' 
-                          || steps.transport === 'BP' ? {'background-color': '#668372'}
-                          : {'background-color': '#22B5D0'}]"
-                          class="pa-1">
+                            style="color: white; border-radius: 5px;" 
+                            :style="[index === 0 || index === trip.fullInstructions.length - 1 ? {'background-color': '#424242'}
+                            : !steps.transport ? {'background-color': '#6981E0'} 
+                            : steps.transport === 'EW' ? {'background-color': '#009E52'}
+                            : steps.transport === 'NE' ? {'background-color': '#6B3294'}
+                            : steps.transport === 'CC' ? {'background-color': '#FCB029'}
+                            : steps.transport === 'NS' ? {'background-color': '#F92D38'}
+                            : steps.transport === 'DT' ? {'background-color': '#4465B7'}
+                            : steps.transport === 'SW' || steps.transport === 'SE' 
+                            || steps.transport === 'PE' || steps.transport === 'PW' 
+                            || steps.transport === 'BP' ? {'background-color': '#668372'}
+                            : {'background-color': '#22B5D0'}]"
+                            class="pa-1"
+                          >
                             {{steps.instructions[2]}}
                           </span>
                         </div>
