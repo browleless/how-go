@@ -3,25 +3,39 @@
     <v-layout row>
       <v-flex>
         <v-card>
-          <v-toolbar extended extension-height="40px" color="light-blue lighten-2">
+          <v-toolbar extended extension-height="92px" color="light-blue lighten-2">
             <v-icon>directions</v-icon>
             <v-toolbar-title justify-space-around>
               <v-card-text class="title">Route Options</v-card-text>
             </v-toolbar-title>
             <template v-slot:extension>
-              <v-radio-group class="pt-3" v-model="sortBy" row>
-                <div class="pr-1">Sort By:</div>
-                <v-radio 
-                  color="black" 
-                  label="Fastest" 
-                  value="fastest"
-                ></v-radio>
-                <v-radio 
-                  color="black" 
-                  label="Cheapest" 
-                  value="cheapest"
-                ></v-radio>
-              </v-radio-group>
+              <v-layout wrap column>
+                <v-flex>
+                  <v-radio-group class="pt-1 pb-3" v-model="sortBy" hide-details row>
+                    <div class="pr-1">Sort By:</div>
+                    <v-radio 
+                      color="black"
+                      label="Fastest" 
+                      value="fastest"
+                    ></v-radio>
+                    <v-radio 
+                      color="black" 
+                      label="Cheapest" 
+                      value="cheapest"
+                    ></v-radio>
+                  </v-radio-group>
+                </v-flex>
+                <v-flex>
+                  <v-tabs slider-color="rgba(0, 0, 0, 0.87)" color="light-blue lighten-2" grow>
+                    <v-tab @click="modeOfTransport = 'TRANSIT'; init(currId)">
+                      <v-icon>directions_subway</v-icon>
+                    </v-tab>
+                    <v-tab @click="modeOfTransport ='BUS'; init(currId)">
+                      <v-icon>directions_bus</v-icon>
+                    </v-tab>
+                  </v-tabs>
+                </v-flex>
+              </v-layout>
             </template>
             <v-spacer></v-spacer>
             <v-btn @click="init(currId)" icon>
@@ -35,6 +49,14 @@
             </v-btn>
           </v-toolbar>
           <v-expansion-panel>
+            <v-progress-circular
+              v-if="!loaded"
+              indeterminate
+              color="primary"
+              size="70"
+              width="6"
+              class="ma-4"
+            ></v-progress-circular>
             <v-expansion-panel-content
               v-for="trip in sortedItineraries"
               :key="trip.index"
@@ -45,10 +67,16 @@
                   <v-layout class="pb-3" row wrap>
                     <v-flex>
                       <div v-if="trip.travelTime < 3600">
-                        Approx. travel time: {{ Math.floor(trip.travelTime / 60) }} min
+                        Approx. travel time: 
+                        <span style="font-weight: bold">
+                          {{ Math.floor(trip.travelTime / 60) }} min
+                        </span>
                       </div>
                       <div v-if="trip.travelTime >= 3600">
-                        Approx. travel time: {{ Math.floor(trip.travelTime / 3600) }} hr {{ Math.floor((trip.travelTime - Math.floor(trip.travelTime / 3600) * 3600) / 60) }} min
+                        Approx. travel time: 
+                        <span style="font-weight: bold">
+                          {{ Math.floor(trip.travelTime / 3600) }} hr {{ Math.floor((trip.travelTime - Math.floor(trip.travelTime / 3600) * 3600) / 60) }} min
+                        </span>
                       </div>
                     </v-flex>
                     <v-flex class="text-xs-right pr-3" style="color: #008000; font-weight: bold">
@@ -63,17 +91,8 @@
                       <v-icon v-if="index !== 0">arrow_right_alt</v-icon>
                       <v-icon >{{ transit.icon }}</v-icon>
                       <span 
-                        style="color: white; border-radius: 5px"
-                        :style="[!transit.transport ? {'background-color': '#6981E0'} 
-                        : transit.transport === 'EW' ? {'background-color': '#009E52'}
-                        : transit.transport === 'NE' ? {'background-color': '#6B3294'}
-                        : transit.transport === 'CC' ? {'background-color': '#FCB029'}
-                        : transit.transport === 'NS' ? {'background-color': '#F92D38'}
-                        : transit.transport === 'DT' ? {'background-color': '#4465B7'}
-                        : transit.transport === 'SW' || transit.transport === 'SE' 
-                        || transit.transport === 'PE' || transit.transport === 'PW' 
-                        || transit.transport === 'BP' ? {'background-color': '#668372'}
-                        : {'background-color': '#E0E0E0', 'color': 'inherit'}]"
+                        style="border-radius: 5px; font-weight: 500"
+                        :style="[{'background-color': getColor(transit.transport, ''), 'color': !parseInt(transit.transport) ? 'white' : '#FFA726'}]"
                         :class="index === trip.transitInfo.length - 1 ? 'pr-1' : ''"
                       >
                         {{ transit.transport }}
@@ -88,22 +107,12 @@
                     v-for="(steps, index) in trip.fullInstructions"
                     :key="steps.index"
                     :icon="trip.routeIcons[index]"
-                    color="red lighten-2"
+                    :color="getColor(steps.transport, index, trip.fullInstructions.length - 1)"
                     fill-dot
                   >
                     <v-card 
                       style="border-radius: 10px" class="elevation-5" 
-                      :color="index === 0 || index === trip.fullInstructions.length - 1 ? '#424242'
-                      : !steps.transport ? '#6981E0' 
-                      : steps.transport === 'EW' ? '#009E52'
-                      : steps.transport === 'NE' ? '#6B3294'
-                      : steps.transport === 'CC' ? '#FCB029'
-                      : steps.transport === 'NS' ? '#F92D38'
-                      : steps.transport === 'DT' ? '#4465B7'
-                      : steps.transport === 'SW' || steps.transport === 'SE' 
-                      || steps.transport === 'PE' || steps.transport === 'PW' 
-                      || steps.transport === 'BP' ? '#668372'
-                      : '#22B5D0'"
+                      :color="getColor(steps.transport, index, trip.fullInstructions.length - 1)"
                       dark
                     >
                       <v-card-title class='title'>
@@ -116,17 +125,7 @@
                         <div class="mt-3">
                           <span 
                             style="color: white; border-radius: 5px;" 
-                            :style="[index === 0 || index === trip.fullInstructions.length - 1 ? {'background-color': '#424242'}
-                            : !steps.transport ? {'background-color': '#6981E0'} 
-                            : steps.transport === 'EW' ? {'background-color': '#009E52'}
-                            : steps.transport === 'NE' ? {'background-color': '#6B3294'}
-                            : steps.transport === 'CC' ? {'background-color': '#FCB029'}
-                            : steps.transport === 'NS' ? {'background-color': '#F92D38'}
-                            : steps.transport === 'DT' ? {'background-color': '#4465B7'}
-                            : steps.transport === 'SW' || steps.transport === 'SE' 
-                            || steps.transport === 'PE' || steps.transport === 'PW' 
-                            || steps.transport === 'BP' ? {'background-color': '#668372'}
-                            : {'background-color': '#22B5D0'}]"
+                            :style="[{'background-color': getColor(steps.transport, index, trip.fullInstructions.length - 1)}]"
                             class="pa-1"
                           >
                             {{steps.instructions[2]}}
@@ -155,7 +154,8 @@ export default {
       currId: null,
       currEvent: null,
       nextEvent: null,
-      sortBy: 'fastest'
+      sortBy: 'fastest',
+      modeOfTransport: 'TRANSIT'
     }
   },
   computed: {
@@ -169,6 +169,7 @@ export default {
   },
   methods: {
     async init(id) {
+      this.loaded = false
       this.currId = id
       this.itineraries = []
       if (this.currEvent === null) {
@@ -203,7 +204,9 @@ export default {
             this.currEvent.date +
             '&time=' +
             this.currEvent.startTime +
-            '&mode=TRANSIT&numItineraries=3'
+            '&mode=' + 
+            this.modeOfTransport +
+            '&numItineraries=3'
         )
         .then(res => {
           const polyline = require('polyline-encoded')
@@ -310,12 +313,15 @@ export default {
             }
             this.itineraries.push(tripInfo)
           }
+          this.loaded = true
         })
         .catch(() => {
           alert('Onemap API error, please refresh')
         })
     },
     updateLocation() {
+      this.itineraries = []
+      this.loaded = false
       navigator.geolocation.getCurrentPosition(async (position) => {
         let oneMapApiKey = ''
         var bodyFormData = new FormData()
@@ -358,6 +364,32 @@ export default {
         maximumAge: 0,
         timeout: 10000
       })
+    },
+    getColor(typeOfTransport, index, length) {
+      if (index === 0 || index === length) {
+        return '#424242'
+      } else if (typeOfTransport === '') {
+        return '#6981E0'
+      } else if (typeOfTransport === 'EW' || typeOfTransport === 'CG') {
+        return '#009E52'
+      } else if (typeOfTransport === 'NE') {
+        return '#6B3294'
+      } else if (typeOfTransport === 'CC' || typeOfTransport === 'CE') {
+        return '#FCB029'
+      } else if (typeOfTransport === 'NS') {
+        return '#F92D38'
+      } else if (typeOfTransport === 'DT') {
+        return '#4465B7'
+      } else if (typeOfTransport === 'SW' || typeOfTransport === 'SE' ||
+      typeOfTransport === 'PW' || typeOfTransport === 'PE' || typeOfTransport === 'BP') {
+        return '#668372'
+      } else {
+        if (index) {
+          return '#22B5D0'
+        } else {
+          return '#424242'
+        }
+      }
     }
   }
 }
