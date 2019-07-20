@@ -1,10 +1,10 @@
 <template>
   <v-container fluid grid-list-md>
     <v-layout row wrap>
-      <v-flex xs12 sm3>
-        <v-flex class="display-2 text-xs-center" pb-2>{{ monthYear }}</v-flex>
+      <v-flex xs12 sm3 order-sm1 order-xs2>
+        <v-flex v-if="!this.$vuetify.breakpoint.xs" class="display-2 text-xs-center" pb-2>{{ monthYear }}</v-flex>
 
-        <v-flex mb-3>
+        <v-flex mb-3 v-if="!this.$vuetify.breakpoint.xs">
           <v-sheet height="200">
             <v-calendar
               :now="today"
@@ -21,15 +21,15 @@
             <template v-slot:header>
               <div>Reminders</div>
             </template>
-            <v-layout row wrap>
-              <v-flex>
-                <v-btn flat v-if="!showForm" @click="promptForm">
+            <v-layout>
+              <v-flex xs6 v-if="!showForm">
+                <v-btn flat block @click="promptForm">
                   Schedule
-                  <v-icon light small>check_box_outline</v-icon>
+                  <v-icon light small>check_box</v-icon>
                 </v-btn>
               </v-flex>
 
-              <v-flex v-if="showForm">
+              <v-flex class="pa-4" v-if="showForm">
                 <v-flex class="text-xs-left">
                   <div class="subheading">I want to reach my destinations</div>
                 </v-flex>
@@ -54,10 +54,10 @@
                 </v-flex>
               </v-flex>
 
-              <v-flex>
-                <v-btn flat v-if="!showForm" @click="deleteScheduledReminders">
+              <v-flex xs6 v-if="!showForm">
+                <v-btn flat block @click="deleteScheduledReminders">
                   Delete
-                  <v-icon light small>delete_outlined</v-icon>
+                  <v-icon light small>delete</v-icon>
                 </v-btn>
               </v-flex>
             </v-layout>
@@ -80,14 +80,25 @@
                     @blur="$v.title.$touch()"
                   ></v-text-field>
                   <v-text-field v-model="description" label="Description"></v-text-field>
-                  <v-text-field
+
+                  <place-autocomplete-field
+                    label="Location"
+                    class="mb-3"
+                    v-model="location"
+                    required
+                    placeholder="Enter an address, zipcode, or location"
+                    @input="$v.location.$touch()"
+                    @blur="$v.location.$touch()"
+                    api-key="AIzaSyAhSv9zWvisiTXRPRw6K8AE0DCmrRMpQcU"
+                  ></place-autocomplete-field>
+                  <!-- <v-text-field
                     v-model="location"
                     :error-messages="locationErrors"
                     label="Location"
                     required
                     @input="$v.location.$touch()"
                     @blur="$v.location.$touch()"
-                  ></v-text-field>
+                  ></v-text-field>-->
 
                   <v-dialog persistent v-model="dateDialog" max-width="290">
                     <template v-slot:activator="{ on }">
@@ -122,12 +133,7 @@
                     </v-card>
                   </v-dialog>
 
-                  <v-slider
-                    v-model="EventDuration"
-                    thumb-color="red"
-                    thumb-label
-                    label="Duration"
-                  ></v-slider>
+                  <v-slider v-model="EventDuration" thumb-color="red" thumb-label label="Duration"></v-slider>
 
                   <v-btn type="submit" :disabled="!formIsValid">Add Event</v-btn>
                   <v-btn @click="clear">clear</v-btn>
@@ -138,9 +144,19 @@
         </v-expansion-panel>
       </v-flex>
 
-      <v-flex d-flex sm9>
-        <v-layout>
+      <v-flex d-flex sm9 order-sm2 order-xs1>
+        
+        <v-progress-circular
+          v-if="!loaded"
+          indeterminate
+          color="primary"
+          size="70"
+          width="6"
+          class="ma-4"
+        ></v-progress-circular>
+        <v-layout v-if="loaded" :class="this.$vuetify.breakpoint.xs ? 'pa-3': ''">
           <v-flex>
+            <v-flex v-if="this.$vuetify.breakpoint.xs" class="display-2 text-xs-center" pb-2>{{ monthYear }}</v-flex>
             <v-alert
               value="true"
               :dismissible="scheduled"
@@ -157,13 +173,13 @@
                 >{{ props.days }} days, {{ props.hours }} hours, {{ props.minutes }} minutes and {{ props.seconds }} seconds</template>
               </countdown>
             </v-alert>
-            <v-sheet height="700">
+            <v-sheet :height="this.$vuetify.breakpoint.xsOnly ? '500' :'700'">
               <!-- now is normally calculated by itself, but to keep the calendar in this date range to view events -->
               <v-calendar
                 ref="calendar"
                 :now="today"
                 :value="today"
-                color="primary"
+                color="#6981e0"
                 :type="$vuetify.breakpoint.xs ? '4day' : 'week'"
                 :weekdays="shiftDays"
                 interval-height="60"
@@ -197,6 +213,7 @@
 
 <script>
 import * as firebase from "firebase";
+import PlaceAutocompleteField from "./PlaceAutocompleteField.vue";
 import { validationMixin } from "vuelidate";
 import {
   required,
@@ -233,7 +250,9 @@ const dayValues = [1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0];
 
 export default {
   mixins: [validationMixin],
-
+  components: {
+    PlaceAutocompleteField
+  },
   validations: {
     title: { required, maxLength: maxLength(20) },
     location: {
@@ -262,7 +281,8 @@ export default {
     endTime: "",
     endDate: "",
 
-    reactive: true
+    reactive: true,
+    loaded: false
   }),
   computed: {
     // convert the list of events into a map of lists keyed by date
@@ -313,7 +333,7 @@ export default {
     locationErrors() {
       const errors = [];
       if (!this.$v.location.$dirty) return errors;
-      
+
       !this.$v.location.integer &&
         errors.push("Postal Code should only contain numbers");
       !this.$v.location.minLength &&
@@ -338,7 +358,6 @@ export default {
     },
     promptForm() {
       this.showForm = !this.showForm;
-      this.scheduledOnce = !this.scheduledOnce;
     },
     onSaveDate() {
       this.dateDialog = false;
@@ -362,7 +381,7 @@ export default {
         calendarId: "primary",
         summary: this.title,
         description: this.description,
-        location: "428198",
+        location: this.location,
         start: {
           dateTime: this.startDate + "T" + this.startTime + ":00+08:00",
           timeZone: "Asia/Singapore"
@@ -376,10 +395,11 @@ export default {
           overrides: [{ method: "popup", minutes: 0 }]
         }
       });
-
+        this.updateCalendar()
       console.log("Event Added");
     },
     async updateCalendar() {
+      this.loaded = false;
       const dateTimeNow = new Date().toString();
       this.events = [
         { date: currDate, time: dateTimeNow.slice(15, 24), duration: 0, id: 1 },
@@ -420,6 +440,7 @@ export default {
         }
         this.events.push(eventInfo);
       }
+      this.loaded = true;
     },
     getTime(startTime, offset) {
       var hms = startTime; // your input string
@@ -437,6 +458,7 @@ export default {
     },
     async scheduleReminders() {
       this.scheduledOnce = true;
+      this.loaded = false
       if (!this.$store.getters.user.scheduledEvents) {
         const d = new Date();
         const dateToday = new Date(
@@ -650,6 +672,7 @@ export default {
         this.updateCalendar();
         this.promptForm();
         this.minutesEarlierBy = "";
+        this.loaded = true;
         alert("scheduling completed!");
       } else {
         alert("already scheduled before, please delete first");
@@ -657,6 +680,7 @@ export default {
       }
     },
     async deleteScheduledReminders() {
+      this.loaded = false;
       this.scheduledOnce = false;
       const d = new Date();
       const dateToday = new Date(
@@ -698,6 +722,7 @@ export default {
         .collection("users")
         .doc(this.$store.getters.user.id)
         .update(this.$store.getters.user);
+      this.loaded = true
       alert(
         "all scheduled reminders deleted, you can now schedule for the week"
       );
@@ -712,9 +737,9 @@ export default {
   text-overflow: ellipsis;
   white-space: nowrap;
   border-radius: 2px;
-  background-color: #2196F3;
+  background-color: #6981e0;
   color: #ffffff;
-  border: 1px solid #2196F3;
+  border: 1px solid #6981e0;
   font-size: 12px;
   padding: 3px;
   cursor: pointer;
