@@ -11,7 +11,7 @@
             :value="value"
             @input="$emit('input', query)">
         </v-text-field>
-        <place-autocomplete-list v-if="predictions && showPredictions" :items="predictions" @item:click="onItemClick"/>
+        <place-autocomplete-list style="max-width: 95%" v-if="predictions && showPredictions" :items="predictions" @item:click="onItemClick"/>
     </div>
 </template>
 

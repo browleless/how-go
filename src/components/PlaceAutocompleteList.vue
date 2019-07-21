@@ -1,5 +1,5 @@
 <template>
-    <v-card>
+    <v-card class="list">
         <v-list>
             <template v-for="(item, index) in items">
                 <v-list-tile avatar ripple :key="item.id" @click="onClick(index)">
@@ -52,3 +52,10 @@ export default {
 
 };
 </script>
+
+<style scoped>
+.list {
+    position: absolute;
+    z-index: 999;
+}
+</style>
