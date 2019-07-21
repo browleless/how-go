@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="z-index: 999"> 
     <v-navigation-drawer temporary absolute v-model="sideNav">
       <v-list>
         <v-list-tile v-for="item in menuItems" :key="item.title" :to="item.link">
@@ -23,21 +23,21 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-toolbar color="blue-grey lighten-5">
+    <v-toolbar style="color: #69F0AE" color="#212121">
       <v-toolbar-side-icon @click="sideNav = !sideNav" class="hidden-sm-and-up"></v-toolbar-side-icon>
       <v-toolbar-title>
         <router-link to="/home" tag="span" style="cursor: pointer">HowGo?</router-link>
       </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-toolbar-items class="hidden-xs-only">
-        <v-btn flat v-for="item in menuItems" :key="item.title" :to="item.link">
+        <v-btn flat v-for="item in menuItems" :key="item.title" :to="item.link" color='#69F0AE'>
           <v-icon left>{{ item.icon }}</v-icon>
           {{ item.title }}
         </v-btn>
-        <v-btn flat v-if="!this.$store.state.isLoggedIn" @click="handleClickSignIn">
+        <v-btn flat v-if="!this.$store.state.isLoggedIn" @click="handleClickSignIn"  color='#69F0AE'>
           <v-icon left>lock_open</v-icon>Login
         </v-btn>
-        <v-btn flat v-if="this.$store.state.isLoggedIn" @click="handleClickSignOut">
+        <v-btn flat v-if="this.$store.state.isLoggedIn" @click="handleClickSignOut"  color='#69F0AE'>
           <v-icon left>lock</v-icon>Logout
         </v-btn>
       </v-toolbar-items>

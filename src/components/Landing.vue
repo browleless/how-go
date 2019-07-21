@@ -1,6 +1,6 @@
 <template>
   <div id="top">
-    <v-responsive style="height: 100vh; background-image: url('https://images.unsplash.com/photo-1512206845341-9206cd251a7b?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1900&q=80'); background-repeat: no-repeat;
+    <v-responsive style="height: 100vh; background-image: url('https://images.unsplash.com/photo-1438979179121-ab4e92cdb51d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1920&q=80'); background-repeat: no-repeat;
   background-attachment: fixed; background-position: center">
       <v-container fill-height>
         <v-layout align-center>
@@ -25,12 +25,37 @@
         </v-layout>
       </v-container>
     </v-responsive>
-    <v-responsive style="height: 100vh; background-image: linear-gradient(to bottom right, #FFEEEE, #DDEFBB)">
-      <v-container>
-        calendar / carousel / grid photos here
+    
+    <v-responsive style="height: 60vh; background-color: white">
+      <v-container fill-height>
+        <v-layout align-center>
+          <v-flex class="text-xs-center" xs12 sm4 xl2 offset-xl3>
+            <img @mouseover="this.hover1 = true" @mouseleave="this.hover1 = false"
+                :src="calendar" height="300px" src="../assets/img/meet3.gif" />
+            <h3 style=" width:80%; text-align:center;margin:0 auto;">Plan your days in advance</h3>
+            <h3 style=" width:80%; text-align:center;margin:0 auto;">Schedule your events</h3>
+          
+          </v-flex>
+          <v-flex class="text-xs-center" v-if="!this.$vuetify.breakpoint.xs" sm4 xl2 >
+            <img @mouseover="hover2 = 'asdf'" @mouseleave="hover2 = ''"
+                :src="hover2 !=='' ? '../assets/img/location5.gif': '../assets/img/location5.jpg'" height="300px" />
+            <h3 style=" width:60%; text-align:center;margin:0 auto;">Conveniently map out places you have to be at</h3>
+            <h3 style=" width:80%; text-align:center;margin:0 auto;"></h3>
+            
+          </v-flex>
+          <v-flex class="text-xs-center" v-if="!this.$vuetify.breakpoint.xs" sm4 xl2 >
+            <img @mouseover="image3='../assets/img/warning3.gif'" @mouseleave="image3='../assets/img/warning3.jpg'"
+                v-bind:src="image3" height="300px" />
+            <h3 style=" width:80%; text-align:center;margin:0 auto">Receive prompts to leave</h3>
+            <h3 style=" width:80%; text-align:center;margin:0 auto;">Never be late again!</h3>
+            
+          </v-flex>
+        </v-layout>
+        
       </v-container>
     </v-responsive>
-    <v-container style="height: 100%">
+
+    <v-responsive style="height: 100vh; background-image: linear-gradient(to bottom right, #FFEEEE, #DDEFBB)">
       <v-container id="routing">
         <v-responsive class="subheading mb-5">
           <v-container class="pa-0" fill-height>
@@ -197,7 +222,8 @@
           </v-flex>
         </v-layout>
       </v-container>
-    </v-container>
+    </v-responsive>
+    
     <v-responsive style="height: 100vh; background-image: linear-gradient(to bottom right, #FFEEEE, #DDEFBB)">
       <v-container>
         contact us here
@@ -237,7 +263,19 @@ export default {
       askedForRoute: false,
       itineraries: [],
       sortBy: 'fastest',
-      modeOfTransport: 'TRANSIT'
+      modeOfTransport: 'TRANSIT',
+      hover2: '',
+      image3: '../assets/img/warning3.jpg'
+    }
+  },
+  computed: {
+    calendar() {
+      if(this.hover == true){
+        return '../assets/img/meeting.gif'
+      } else{
+         '../assets/img/location.jpg'
+      }
+     
     }
   },
   methods: {

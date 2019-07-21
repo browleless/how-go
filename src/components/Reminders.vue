@@ -160,7 +160,8 @@
             <v-alert
               value="true"
               :dismissible="scheduled"
-              :type="scheduled ? 'success' : 'warning'"
+              :type="scheduled ? 'success' : 'error'"
+              :color="scheduled ? 'rgba(105, 240, 174, 0.95)' : '#ff5252'"
             >
               {{ alertText }}
               <countdown
