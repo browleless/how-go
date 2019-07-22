@@ -16,7 +16,8 @@ const getDefaultState = () => {
         isLoggedIn: false,
         today: true,
         tomorrow: false,
-        currIdx: null
+        currIdx: null,
+        loaded: false
     }
 }
 
@@ -28,6 +29,7 @@ const actions = {
     },
     async signIn({ commit }, payload) {
         // On success do something, refer to https://developers.google.com/api-client-library/javascript/reference/referencedocs#googleusergetid
+        commit('setLoading', false)
         const d = new Date()
         const dateToday = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString()
         const currDate = dateToday.slice(0, 10)
@@ -85,6 +87,7 @@ const actions = {
                 for (var j = 0; j < this.state.tmrwEvents.length; j++) {
                     this.state.tmrwEvents[j]['id'] = j
                 }
+                commit('setLoading', true)
             })
         const endDate = new Date(d.getTime() - (d.getTimezoneOffset() * 60000) + 60000 * 60 * 24).toISOString().slice(0, 10)
         const events = await gapi.client.calendar.events.list({
@@ -192,6 +195,9 @@ const mutations = {
     setUserNextSchedulingTime(state) {
         const today = new Date()
         state.user.nextSchedulingTime = new Date(today.setDate(today.getDate() + 6)).setHours(23, 59, 59)
+    },
+    setLoading(state, payload) {
+        state.loaded = payload
     }
 }
 
@@ -214,6 +220,9 @@ const getters = {
     },
     currIdx(state) {
         return state.currIdx
+    },
+    loaded(state) {
+        return state.loaded
     }
 }
 

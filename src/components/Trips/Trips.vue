@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-flex xs12 sm10 md8 offset-sm2 offset-md>
+    <v-flex xs12 sm10 md8 offset-sm1 offset-md2>
       <v-tabs fixed-tabs color="blue-grey lighten-1" dark slider-color="yellow">
         <v-tab @click="loadToday">Today</v-tab>
         <v-tab @click="loadTomorrow">Tomorrow</v-tab>
@@ -12,14 +12,17 @@
         <v-card>
           <v-img :src="place.imageUrl" aspect-ratio="2.75" fit></v-img>
           <v-card-title primary-title class="ml-2">
-            <div>
-              <h3 class="mb-0">{{ place.name }}</h3>
-              <div>Time to reach: {{ place.startTime }}</div>
-            </div>
-            <v-spacer></v-spacer>
-            <v-btn flat @click.native="updateCurrIdx(place.id - 1)">
-              <v-icon left>arrow_forward</v-icon>View Route
-            </v-btn>
+            <v-layout row wrap>
+              <v-flex>
+                <h3 class="mb-0">{{ place.name }}</h3>
+                <div>Time to reach: {{ place.startTime }}</div>
+              </v-flex>
+              <v-flex text-xs-right>
+                <v-btn flat @click.native="updateCurrIdx(place.id - 1)">
+                  <v-icon left>arrow_forward</v-icon>View Route
+                </v-btn>
+              </v-flex>
+            </v-layout>
           </v-card-title>
         </v-card>
       </v-flex>

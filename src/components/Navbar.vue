@@ -1,5 +1,5 @@
 <template>
-  <div style="z-index: 999"> 
+  <div style="z-index: 1000"> 
     <v-navigation-drawer temporary absolute v-model="sideNav">
       <v-list>
         <v-list-tile v-for="item in menuItems" :key="item.title" :to="item.link">

@@ -4,9 +4,14 @@
       <v-flex>
         <v-card>
           <v-toolbar extended extension-height="92px" color="light-blue lighten-2">
-            <v-icon>directions</v-icon>
+            <v-btn to="/trips" icon>
+              <v-icon>arrow_back</v-icon>
+            </v-btn>
             <v-toolbar-title justify-space-around>
-              <v-card-text class="title">Route Options</v-card-text>
+              <v-card-text class="title pl-0">
+                <v-icon>directions</v-icon>
+                Route Options
+              </v-card-text>
             </v-toolbar-title>
             <template v-slot:extension>
               <v-layout wrap column>
@@ -43,9 +48,6 @@
             </v-btn>
             <v-btn @click="updateLocation" icon>
               <v-icon>gps_fixed</v-icon>
-            </v-btn>
-            <v-btn to="/trips" icon>
-              <v-icon>arrow_back</v-icon>
             </v-btn>
           </v-toolbar>
           <v-expansion-panel>
