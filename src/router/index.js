@@ -6,7 +6,7 @@ import Trips from '../components/Trips/Trips.vue'
 import Routes from '../components/Trips/Routes.vue'
 import Reminders from '../components/Reminders.vue'
 import Profile from '../components/User/Profile.vue'
-import Login from '../components/User/Login.vue'
+import AuthGuard from './auth-guard'
 
 Vue.use(VueRouter)
 
@@ -20,32 +20,32 @@ export default new VueRouter({
         {
             path: '/home',
             name: 'Home',
-            component: Home
+            component: Home,
+            beforeEnter: AuthGuard
         },
         { 
             path: '/trips', 
             name: 'Trips', 
             component: Trips,
+            beforeEnter: AuthGuard
         },
         { 
             path: '/routes', 
             name: 'Routes', 
             component: Routes,
+            beforeEnter: AuthGuard
         },
         { 
             path: '/reminders', 
             name: 'Reminders', 
             component: Reminders,
+            beforeEnter: AuthGuard
         },
         { 
             path: '/profile', 
             name: 'Profile', 
-            component: Profile 
-        },
-        { 
-            path: '/login', 
-            name: 'Login', 
-            component: Login 
+            component: Profile,
+            beforeEnter: AuthGuard
         }
     ],
     mode: 'history'
