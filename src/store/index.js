@@ -127,14 +127,14 @@ const actions = {
                         commit('setTodayEvents', eventInfo)
                         continue
                     }
-                    await client.search(events.result.items[i].location, { size: 'huge' })
-                        .then(images => {
-                            eventInfo['imageUrl'] = images[0].url
-                            console.log('images success', images)
-                        })
-                        .catch(err => {
-                            console.log(err)
-                        })
+                    // await client.search(events.result.items[i].location, { size: 'huge' })
+                    //     .then(images => {
+                    //         eventInfo['imageUrl'] = images[0].url
+                    //         console.log('images success', images)
+                    //     })
+                    //     .catch(err => {
+                    //         console.log(err)
+                    //     })
                     commit('setTodayEvents', eventInfo)
                 } else {
                     commit('setTmrwEvents', eventInfo)

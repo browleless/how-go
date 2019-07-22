@@ -1,8 +1,8 @@
 <template>
   <v-container fluid grid-list-md>
     <v-layout row wrap>
-      <v-flex xs12 sm3 order-sm1 order-xs2>
-        <v-flex v-if="!this.$vuetify.breakpoint.xs" class="display-2 text-xs-center" pb-2>{{ monthYear }}</v-flex>
+      <v-flex xs12 sm5 md4 lg3 order-sm1 order-xs2>
+        <v-flex v-if="!this.$vuetify.breakpoint.xs" class="display-2 text-xs-center" pb-2 mb-2>{{ monthYear }}</v-flex>
 
         <v-flex mb-3 v-if="!this.$vuetify.breakpoint.xs">
           <v-sheet height="200">
@@ -16,7 +16,7 @@
           </v-sheet>
         </v-flex>
 
-        <v-expansion-panel focusable popout expand>
+        <v-expansion-panel popout expand>
           <v-expansion-panel-content>
             <template v-slot:header>
               <div>Reminders</div>
@@ -34,24 +34,34 @@
                   <div class="subheading">I want to reach my destinations</div>
                 </v-flex>
                 <v-flex>
-                  <v-text-field
-                    v-model="minutesEarlierBy"
-                    label="Minutes"
-                    maxlength="3"
-                    onkeypress="return event.charCode >= 48 && event.charCode <= 57"
-                  ></v-text-field>
+                  <v-layout row wrap align-end mt-1>
+                    <v-flex xs4>
+                       <v-text-field
+                        class="pa-0 ma-0"
+                        hide-details
+                        v-model="minutesEarlierBy"
+                        label="Minutes"
+                        maxlength="3"
+                        onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                      ></v-text-field>
+                    </v-flex>
+                    <v-flex subheading>
+                      earlier
+                    </v-flex>
+                  </v-layout>
                 </v-flex>
-                <v-flex>
-                  <div class="subheading">earlier</div>
-                </v-flex>
-                <v-flex>
-                  <v-btn
-                    :disabled="this.minutesEarlierBy === '' || this.scheduledOnce === true"
-                    @click="scheduleReminders"
-                    class="info"
-                  >Submit</v-btn>
-                  <v-btn v-if="showForm" @click="promptForm" class="error">Close</v-btn>
-                </v-flex>
+                <v-layout mt-3 row wrap>
+                  <v-flex pa-0 class="text-xs-right">
+                    <v-btn
+                      :disabled="this.minutesEarlierBy === '' || this.scheduledOnce === true"
+                      @click="scheduleReminders"
+                      class="info"
+                    >Submit</v-btn>
+                  </v-flex>
+                  <v-flex pa-0 class="text-xs-left">
+                    <v-btn v-if="showForm" @click="promptForm" class="error">Close</v-btn>
+                  </v-flex>
+                </v-layout>
               </v-flex>
 
               <v-flex xs6 v-if="!showForm">
@@ -100,43 +110,75 @@
                     @blur="$v.location.$touch()"
                   ></v-text-field>-->
 
-                  <v-dialog persistent v-model="dateDialog" max-width="290">
-                    <template v-slot:activator="{ on }">
-                      <v-btn color="primary" dark v-on="on">Select Date</v-btn>
-                    </template>
-                    <v-card>
-                      <v-date-picker
-                        v-model="startDate"
-                        color="primary"
-                        :reactive="reactive"
-                        :min="today"
-                      ></v-date-picker>
-                      <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <v-btn color="green darken-1" flat @click="dateDialog=false">Close</v-btn>
-                        <v-btn color="green darken-1" flat @click="onSaveDate">Save</v-btn>
-                      </v-card-actions>
-                    </v-card>
-                  </v-dialog>
+                  <v-layout row wrap>
+                    <v-flex pa-0 class="text-xs-right">
+                      <v-dialog persistent v-model="dateDialog" max-width="290">
+                        <template v-slot:activator="{ on }">
+                          <v-btn color="primary" dark v-on="on">Select Date</v-btn>
+                        </template>
+                        <v-card>
+                          <v-date-picker
+                            v-model="startDate"
+                            color="primary"
+                            :reactive="reactive"
+                            :min="today"
+                          ></v-date-picker>
+                          <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn color="green darken-1" flat @click="dateDialog=false">Close</v-btn>
+                            <v-btn color="green darken-1" flat @click="onSaveDate">Save</v-btn>
+                          </v-card-actions>
+                        </v-card>
+                      </v-dialog>
+                    </v-flex>
+                    <v-flex pa-0 class="text-xs-left">
+                      <v-dialog persistent v-model="timeDialog" max-width="270">
+                        <template v-slot:activator="{ on }">
+                          <v-btn color="primary" dark v-on="on">Select Time</v-btn>
+                        </template>
+                        <v-card>
+                          <v-time-picker :allowed-minutes="min => min % 5 === 0" v-model="startTime" type="month" width="270"></v-time-picker>
+                          <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn color="green darken-1" flat @click="timeDialog=false">Close</v-btn>
+                            <v-btn color="green darken-1" flat @click="onSaveTime">Save</v-btn>
+                          </v-card-actions>
+                        </v-card>
+                      </v-dialog>
+                    </v-flex>
+                  </v-layout>
+                  
+                  <div v-if="selectedDate" class="subheading pt-2 pb-1">
+                    Selected Date: {{ new Date(startDate.split('-')[0], startDate.split('-')[1] - 1, startDate.split('-')[2]).toString().slice(0, 15) }}
+                  </div>
+                  <div v-if="selectedTime" class="subheading pt-1 pb-1">
+                    Selected Time: {{ getTwelveHourTime(startTime).toUpperCase() }}
+                  </div>
+                  <div class="subheading pt-1 pb-2">
+                    Duration: 
+                    <span v-if="duration < 60">
+                      {{ duration }} mins
+                    </span>
+                    <span v-if="duration >= 60">
+                      {{ Math.floor(duration / 60) }} hr {{ duration - (Math.floor(duration / 60) * 60)}} mins
+                    </span>
+                  </div>
 
-                  <v-dialog persistent v-model="timeDialog" max-width="270">
-                    <template v-slot:activator="{ on }">
-                      <v-btn color="primary" dark v-on="on">Select Time</v-btn>
-                    </template>
-                    <v-card>
-                      <v-time-picker v-model="startTime" type="month" width="270"></v-time-picker>
-                      <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <v-btn color="green darken-1" flat @click="timeDialog=false">Close</v-btn>
-                        <v-btn color="green darken-1" flat @click="onSaveTime">Save</v-btn>
-                      </v-card-actions>
-                    </v-card>
-                  </v-dialog>
+                  <v-slider hide-details class="ma-0" append-icon="add" prepend-icon="remove" v-model="duration" min="15" max="180" step="15" @click:append="increaseDuration" @click:prepend="decreaseDuration"></v-slider>
 
-                  <v-slider v-model="EventDuration" thumb-color="red" thumb-label label="Duration"></v-slider>
-
-                  <v-btn type="submit" :disabled="!formIsValid">Add Event</v-btn>
-                  <v-btn @click="clear">clear</v-btn>
+                  <v-layout row wrap>
+                    <v-flex pa-0 class="text-xs-right">
+                      <v-btn type="submit" :disabled="!formIsValid">
+                        Add Event
+                      </v-btn>
+                    </v-flex>
+                    <v-flex pa-0 class="text-xs-left">
+                      <v-btn @click="clear">
+                        clear
+                      </v-btn>
+                    </v-flex>
+                  </v-layout>
+            
                 </form>
               </v-flex>
             </v-layout>
@@ -144,23 +186,39 @@
         </v-expansion-panel>
       </v-flex>
 
-      <v-flex d-flex sm9 order-sm2 order-xs1>
+      <v-flex d-flex sm7 md8 lg9 order-sm2 order-xs1>
+        <v-flex v-if="!loaded || scheduleDelete" class="text-xs-center">
+          <v-progress-circular
+            v-if="!loaded"
+            indeterminate
+            color="primary"
+            size="70"
+            width="6"
+            class="ma-4"
+          ></v-progress-circular>
+          <v-progress-circular
+            v-if="scheduleDelete"
+            :rotate="-90"
+            :size="100"
+            :width="15"
+            :value="value"
+            color="primary"
+            class="ma-4"
+          >
+            {{ value }}%
+          </v-progress-circular>
+          <div v-if="scheduleDelete" class="subheading">
+            {{ loadingText }}
+          </div>
+        </v-flex>
         
-        <v-progress-circular
-          v-if="!loaded"
-          indeterminate
-          color="primary"
-          size="70"
-          width="6"
-          class="ma-4"
-        ></v-progress-circular>
-        <v-layout v-if="loaded" :class="this.$vuetify.breakpoint.xs ? 'pa-3': ''">
+        <v-layout v-if="loaded && !scheduleDelete" :class="this.$vuetify.breakpoint.xs ? 'pa-3': ''">
           <v-flex>
-            <v-flex v-if="this.$vuetify.breakpoint.xs" class="display-2 text-xs-center" pb-2>{{ monthYear }}</v-flex>
+            <v-flex v-if="this.$vuetify.breakpoint.xs" class="display-2 text-xs-center" pb-2 mb-2>{{ monthYear }}</v-flex>
             <v-alert
               value="true"
               :dismissible="scheduled"
-              :type="scheduled ? 'success' : 'error'"
+              :type="scheduled ? 'success' : 'warning'"
               :color="scheduled ? 'rgba(105, 240, 174, 0.95)' : '#ff5252'"
             >
               {{ alertText }}
@@ -181,7 +239,7 @@
                 :now="today"
                 :value="today"
                 color="#6981e0"
-                :type="$vuetify.breakpoint.xs ? '4day' : 'week'"
+                :type="$vuetify.breakpoint.smAndDown ? '4day' : 'week'"
                 :weekdays="shiftDays"
                 interval-height="60"
               >
@@ -266,6 +324,7 @@ export default {
   },
   data: () => ({
     today: currDate,
+    value: 0,
     monthYear: monthNames[d.getMonth()] + " " + d.getFullYear(),
     minutesEarlierBy: "",
     events: [],
@@ -274,16 +333,21 @@ export default {
     scheduledOnce: false,
     dateDialog: false,
     timeDialog: false,
+    loadingText: '',
     //newEvent
     title: "",
     location: "",
+    description: '',
+    duration: 60,
     startTime: "",
     startDate: "",
-    endTime: "",
     endDate: "",
+    selectedTime: false,
+    selectedDate: false,
 
     reactive: true,
-    loaded: false
+    loaded: false,
+    scheduleDelete: false
   }),
   computed: {
     // convert the list of events into a map of lists keyed by date
@@ -313,8 +377,8 @@ export default {
       return (
         this.title !== "" &&
         this.location !== "" &&
-        this.startTime !== "" &&
-        this.startDate !== ""
+        this.selectedTime &&
+        this.selectedDate
       );
     },
     titleErrors() {
@@ -345,11 +409,11 @@ export default {
       return errors;
     }
   },
-  mounted() {
+  async mounted() {
     if (this.$gAuth.isInit) {
-      this.updateCalendar();
+      await this.updateCalendar();
     } else {
-      setTimeout(this.updateCalendar, 1100);
+      setTimeout(await this.updateCalendar, 1100);
     }
     this.$refs.calendar.scrollToTime("08:00");
   },
@@ -359,13 +423,16 @@ export default {
     },
     promptForm() {
       this.showForm = !this.showForm;
+      this.minutesEarlierBy = ''
     },
     onSaveDate() {
       this.dateDialog = false;
+      this.selectedDate = true
       console.log(this.startDate);
     },
     onSaveTime() {
       this.timeDialog = false;
+      this.selectedTime = true
       console.log(this.startTime);
     },
     clear() {
@@ -373,9 +440,18 @@ export default {
       this.$v.$reset();
       this.title = "";
       this.description = "";
+      this.duration = 60
       this.location = "";
+      this.startDate = ''
       this.startTime = "";
-      this.endTime = "";
+      this.selectedDate = false
+      this.selectedTime = false
+    },
+    increaseDuration() {
+      this.duration = (this.duration + 15) || 180
+    },
+    decreaseDuration() {
+      this.duration = (this.duration - 15) || 0
     },
     async createNewEvent() {
       await this.$gAuth.gapi.client.calendar.events.insert({
@@ -388,7 +464,7 @@ export default {
           timeZone: "Asia/Singapore"
         },
         end: {
-          dateTime: this.startDate + "T" + this.startTime + ":00+08:00",
+          dateTime: this.startDate + "T" + this.getTime((this.startTime + ':00'), (this.duration * 60 * -1)) + "+08:00",
           timeZone: "Asia/Singapore"
         },
         reminders: {
@@ -396,8 +472,10 @@ export default {
           overrides: [{ method: "popup", minutes: 0 }]
         }
       });
-        this.updateCalendar()
+      await this.updateCalendar()
+      this.$refs.calendar.scrollToTime(this.startTime)
       console.log("Event Added");
+      this.clear
     },
     async updateCalendar() {
       this.loaded = false;
@@ -415,14 +493,7 @@ export default {
       });
       for (var i = 0; i < events.result.items.length; i++) {
         var eventInfo = {};
-        const date = new Date(events.result.items[i].start.dateTime);
-        var hours = date.getHours();
-        var minutes = date.getMinutes();
-        var ampm = hours >= 12 ? "pm" : "am";
-        hours = hours % 12;
-        hours = hours ? hours : 12; // the hour '0' should be '12'
-        minutes = minutes < 10 ? "0" + minutes : minutes;
-        eventInfo["twelveHrTime"] = hours + ":" + minutes + ampm;
+        eventInfo["twelveHrTime"] = this.getTwelveHourTime(events.result.items[i].start.dateTime.slice(11, 16));
         eventInfo["title"] = events.result.items[i].summary;
         eventInfo["date"] = events.result.items[i].start.dateTime.slice(0, 10);
         eventInfo["time"] = events.result.items[i].start.dateTime.slice(11, 19);
@@ -443,6 +514,15 @@ export default {
       }
       this.loaded = true;
     },
+    getTwelveHourTime(hhmm) {
+      const timeValues = hhmm.split(':')
+      var hours = timeValues[0]
+      var minutes = timeValues[1]
+      var ampm = hours >= 12 ? "pm" : "am";
+      hours = hours % 12;
+      hours = hours ? hours : 12; // the hour '0' should be '12'
+      return hours + ":" + minutes + ampm
+    },
     getTime(startTime, offset) {
       var hms = startTime; // your input string
       var a = hms.split(":"); // split it at the colons
@@ -458,8 +538,10 @@ export default {
       return date.toISOString().substr(11, 8);
     },
     async scheduleReminders() {
+      this.loadingText = 'Scheduling Reminders... Please Wait'
       this.scheduledOnce = true;
-      this.loaded = false
+      this.scheduleDelete = true
+      this.value = 0
       if (!this.$store.getters.user.scheduledEvents) {
         const d = new Date();
         const dateToday = new Date(
@@ -585,6 +667,8 @@ export default {
         this.wkEvents.push(day6);
         this.wkEvents.push(day7);
 
+        const progressVal = 100.0 / events.result.items.length
+
         console.log("finished calendar");
         let oneMapApiKey = "";
         var bodyFormData = new FormData();
@@ -655,7 +739,8 @@ export default {
                     useDefault: false,
                     overrides: [{ method: "popup", minutes: 0 }]
                   }
-                });
+                })
+                this.value = Math.round((this.value + progressVal) * 10) / 10
                 console.log("finished insert");
               })
               .catch(err => {
@@ -670,18 +755,21 @@ export default {
           .collection("users")
           .doc(this.$store.getters.user.id)
           .update(this.$store.getters.user);
-        this.updateCalendar();
         this.promptForm();
         this.minutesEarlierBy = "";
-        this.loaded = true;
-        alert("scheduling completed!");
+        this.loadingText = 'Complete!'
+        this.scheduleDelete = false;
+        await this.updateCalendar();
+        this.$refs.calendar.scrollToTime("08:00")
       } else {
         alert("already scheduled before, please delete first");
         return;
       }
     },
     async deleteScheduledReminders() {
-      this.loaded = false;
+      this.value = 0
+      this.loadingText = 'Deleting Reminders... Please Wait'
+      this.scheduleDelete = true;
       this.scheduledOnce = false;
       const d = new Date();
       const dateToday = new Date(
@@ -709,13 +797,14 @@ export default {
           eventsToDelete.push(events.result.items[i].id);
         }
       }
+      const progressVal = 100.0 / eventsToDelete.length
       for (var j = 0; j < eventsToDelete.length; j++) {
         await this.$gAuth.gapi.client.calendar.events.delete({
           calendarId: "primary",
           eventId: eventsToDelete[j]
         });
+        this.value = Math.round((this.value + progressVal) * 10) / 10
       }
-      this.updateCalendar();
       this.wkEvents = [];
       this.$store.commit("setUserScheduledEvents", false);
       firebase
@@ -723,10 +812,10 @@ export default {
         .collection("users")
         .doc(this.$store.getters.user.id)
         .update(this.$store.getters.user);
-      this.loaded = true
-      alert(
-        "all scheduled reminders deleted, you can now schedule for the week"
-      );
+      this.loadingText = 'Completed!'
+      this.scheduleDelete = false
+      await this.updateCalendar();
+      this.$refs.calendar.scrollToTime("08:00")
     }
   }
 };
