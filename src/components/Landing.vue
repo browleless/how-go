@@ -1,11 +1,7 @@
 <template>
-  <div
-    id="top"
-    style="height: 100vh; background-image: url('https://images.unsplash.com/photo-1438979179121-ab4e92cdb51d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1920&q=80'); background-repeat: no-repeat;
-  background-attachment: fixed; background-position: center"
-  >
+  <div id="top">
     <v-responsive
-      style="height: 100vh; background-image: url('https://images.unsplash.com/photo-1438979179121-ab4e92cdb51d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1920&q=80'); background-repeat: no-repeat;
+      style="height: 100vh; background-image: url('https://images.unsplash.com/photo-1519885277449-12eee5564d68?ixlib=rb-1.2.1&auto=format&fit=crop&w=1951&q=80'); background-repeat: no-repeat;
   background-attachment: fixed; background-position: center"
     >
       <v-container fill-height>
@@ -310,7 +306,7 @@ background: linear-gradient(180deg, rgba(54,98,119,0.8442109265581232) 0%, rgba(
       </v-container>
     </v-responsive>
 
-    <v-responsive style="height: 100%;  background: rgb(117,101,164);
+    <v-responsive style="height: 100vh;  background: rgb(117,101,164);
 background: linear-gradient(180deg, rgba(117,101,164,1) 0%, rgba(111,196,212,1) 100%); ">
       <v-container>
         <v-layout row pa-5>
