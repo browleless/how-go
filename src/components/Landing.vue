@@ -39,8 +39,8 @@
     </v-responsive>
 
     <v-responsive
-      style="height: 90vh; background-color: white;  background: rgb(54,98,119);
-background: linear-gradient(180deg, rgba(54,98,119,0.8442109265581232) 0%, rgba(255,255,255,1) 15%, rgba(255,255,255,1) 85%, rgba(122,81,33,1) 100%);  "
+      style="height: 80vh; background-color: white;   background: rgb(54,98,119);
+background: linear-gradient(180deg, rgba(54,98,119,0.8442109265581232) 0%, rgba(255,255,255,1) 15%, rgba(255,255,255,1) 85%, rgba(212,153,141,1) 100%); "
     >
       <v-container fill-height>
         <v-layout align-center pt-0 pb-5 mb-3>
@@ -68,7 +68,7 @@ background: linear-gradient(180deg, rgba(54,98,119,0.8442109265581232) 0%, rgba(
             xl2
             offset-xl3
           >
-            <img height="280px" src="../assets/img/meet3s.jpg" />
+            <img height="280px" src="../assets/img/meet4s.jpg" />
             <h3 style=" width:80%; text-align:center;margin:0 auto;">Plan your days in advance</h3>
             <h3 style=" width:80%; text-align:center;margin:0 auto;">Schedule your events</h3>
           </v-flex>
@@ -135,8 +135,8 @@ background: linear-gradient(180deg, rgba(54,98,119,0.8442109265581232) 0%, rgba(
   background-attachment: fixed; background-position: center"
     >
       <v-container id="routing">
-        <v-responsive class="subheading mb-5">
-          <v-container class="pa-0" pt-5 fill-height>
+        <v-responsive class="subheading mb-3">
+          <v-container class="pa-0" pt-4 fill-height>
             <v-layout
               align-center
               xs12
@@ -161,11 +161,7 @@ background: linear-gradient(180deg, rgba(54,98,119,0.8442109265581232) 0%, rgba(
             <v-layout column wrap>
               <v-flex xs12>
                 <v-card style="z-index: 504">
-                  <v-toolbar
-                    extended
-                    :extension-height="from && to ? '220px' : '130px'"
-                    color="light-blue lighten-2"
-                  >
+                  <v-toolbar extended :extension-height="from && to ? '220px' : '130px'" color="light-blue lighten-2">
                     <v-icon>directions</v-icon>
                     <v-toolbar-title justify-space-around>
                       <v-card-text class="title">HowGo?</v-card-text>
@@ -173,39 +169,28 @@ background: linear-gradient(180deg, rgba(54,98,119,0.8442109265581232) 0%, rgba(
                     <template v-slot:extension>
                       <v-layout wrap column>
                         <v-flex>
-                          <place-autocomplete-field
-                            solo
-                            class="mb-3"
-                            v-model="fromStr"
-                            @autocomplete-select="fillFrom"
-                            icon="place"
-                            placeholder="Enter your current location"
-                            api-key="AIzaSyAhSv9zWvisiTXRPRw6K8AE0DCmrRMpQcU"
-                          ></place-autocomplete-field>
+                          <place-autocomplete-field solo class="mb-3" v-model="fromStr" @autocomplete-select="fillFrom" icon="place" placeholder="Enter your current location" api-key="AIzaSyAhSv9zWvisiTXRPRw6K8AE0DCmrRMpQcU"></place-autocomplete-field>
                         </v-flex>
                         <v-flex>
-                          <place-autocomplete-field
-                            solo
-                            class="mb-3"
-                            icon="flag"
-                            @autocomplete-select="fillTo"
-                            placeholder="Enter your destination's location"
-                            api-key="AIzaSyAhSv9zWvisiTXRPRw6K8AE0DCmrRMpQcU"
-                          ></place-autocomplete-field>
+                          <place-autocomplete-field solo class="mb-3" icon="flag" @autocomplete-select="fillTo" placeholder="Enter your destination's location" api-key="AIzaSyAhSv9zWvisiTXRPRw6K8AE0DCmrRMpQcU"></place-autocomplete-field>
                         </v-flex>
                         <v-flex v-if="to && from">
                           <v-radio-group class="pt-1 pb-3" v-model="sortBy" hide-details row>
                             <div class="pr-1">Sort By:</div>
-                            <v-radio color="black" label="Fastest" value="fastest"></v-radio>
-                            <v-radio color="black" label="Cheapest" value="cheapest"></v-radio>
+                            <v-radio 
+                              color="black"
+                              label="Fastest" 
+                              value="fastest"
+                            ></v-radio>
+                            <v-radio 
+                              color="black" 
+                              label="Cheapest" 
+                              value="cheapest"
+                            ></v-radio>
                           </v-radio-group>
                         </v-flex>
                         <v-flex v-if="to && from">
-                          <v-tabs
-                            slider-color="rgba(0, 0, 0, 0.87)"
-                            color="light-blue lighten-2"
-                            grow
-                          >
+                          <v-tabs slider-color="rgba(0, 0, 0, 0.87)" color="light-blue lighten-2" grow>
                             <v-tab @click="modeOfTransport = 'TRANSIT'; getRoute()">
                               <v-icon>directions_subway</v-icon>
                             </v-tab>
@@ -243,35 +228,39 @@ background: linear-gradient(180deg, rgba(54,98,119,0.8442109265581232) 0%, rgba(
                           <v-layout class="pb-3" row wrap>
                             <v-flex>
                               <div v-if="trip.travelTime < 3600">
-                                Approx. travel time:
-                                <span
-                                  style="font-weight: bold"
-                                >{{ Math.floor(trip.travelTime / 60) }} min</span>
+                                Approx. travel time: 
+                                <span style="font-weight: bold">
+                                  {{ Math.floor(trip.travelTime / 60) }} min
+                                </span>
                               </div>
                               <div v-if="trip.travelTime >= 3600">
                                 Approx. travel time:
-                                <span
-                                  style="font-weight: bold"
-                                >{{ Math.floor(trip.travelTime / 3600) }} hr {{ Math.floor((trip.travelTime - Math.floor(trip.travelTime / 3600) * 3600) / 60) }} min</span>
+<span style="font-weight: bold">
+                                  {{ Math.floor(trip.travelTime / 3600) }} hr {{ Math.floor((trip.travelTime - Math.floor(trip.travelTime / 3600) * 3600) / 60) }} min
+                                </span>
                               </div>
                             </v-flex>
-                            <v-flex
-                              class="text-xs-right pr-3"
-                              style="color: #008000; font-weight: bold"
-                            >${{ trip.cost }}</v-flex>
+                            <v-flex class="text-xs-right pr-3" style="color: #008000; font-weight: bold">
+                              ${{ trip.cost }}
+                            </v-flex>
                           </v-layout>
                           <v-flex class="text-xs-left">
-                            <span v-for="(transit, index) in trip.transitInfo" :key="transit.id">
+                            <span
+                              v-for="(transit, index) in trip.transitInfo" 
+                              :key="transit.id"
+                            >
                               <v-icon v-if="index !== 0">arrow_right_alt</v-icon>
-                              <v-icon>{{ transit.icon }}</v-icon>
-                              <span
+                              <v-icon >{{ transit.icon }}</v-icon>
+                              <span 
                                 style="border-radius: 5px; font-weight: 500"
                                 :style="[{'background-color': getColor(transit.transport, ''), 'color': !parseInt(transit.transport) ? 'white' : '#FFA726'}]"
                                 :class="index === trip.transitInfo.length - 1 ? 'pr-1' : ''"
-                              >{{ transit.transport }}</span>
+                              >
+                                {{ transit.transport }}
+                              </span>
                             </span>
                           </v-flex>
-                        </v-layout>
+                        </v-layout>  
                       </template>
                       <div class="pl-3 pr-4" style="overflow-y: scroll; height: 220px">
                         <v-timeline dense light align-top>
@@ -282,21 +271,26 @@ background: linear-gradient(180deg, rgba(54,98,119,0.8442109265581232) 0%, rgba(
                             :color="getColor(steps.transport, index, trip.fullInstructions.length - 1)"
                             fill-dot
                           >
-                            <v-card
-                              style="border-radius: 10px"
-                              class="elevation-5"
+                            <v-card 
+                              style="border-radius: 10px" class="elevation-5" 
                               :color="getColor(steps.transport, index, trip.fullInstructions.length - 1)"
                               dark
                             >
-                              <v-card-title class="title">{{steps.instructions[0]}}</v-card-title>
+                              <v-card-title class="title">
+                                {{steps.instructions[0]}}
+                              </v-card-title>
                               <v-card-text class="white text--primary subheading">
-                                <div>{{steps.instructions[1]}}</div>
+                                <div>
+                                  {{steps.instructions[1]}}
+                                </div>
                                 <div class="mt-3">
-                                  <span
-                                    style="color: white; border-radius: 5px;"
+                                  <span 
+                                    style="color: white; border-radius: 5px;" 
                                     :style="[{'background-color': getColor(steps.transport, index, trip.fullInstructions.length - 1)}]"
                                     class="pa-1"
-                                  >{{steps.instructions[2]}}</span>
+                                  >
+                                    {{steps.instructions[2]}}
+                                  </span>
                                 </div>
                               </v-card-text>
                             </v-card>
@@ -310,23 +304,23 @@ background: linear-gradient(180deg, rgba(54,98,119,0.8442109265581232) 0%, rgba(
             </v-layout>
           </v-flex>
           <v-flex xs7 :class="$vuetify.breakpoint.smAndDown ? 'mt-4' : 'pl-4'">
-            <Map ref="map" style="height: 570px; position: relative" />
+            <Map ref="map" style="height:520px; position: relative" />
           </v-flex>
         </v-layout>
       </v-container>
     </v-responsive>
 
-    <v-responsive style="height: 100%; background-color: #FFC94C">
+    <v-responsive style="height: 100%;  background: rgb(117,101,164);
+background: linear-gradient(180deg, rgba(117,101,164,1) 0%, rgba(111,196,212,1) 100%); ">
       <v-container>
         <v-layout row pa-5>
-          <v-flex text-xs-center>
-            <h2 style="font-weight: bold" class="display-1">Have any questions?</h2>
+          <v-flex style="color: white" text-xs-center>
+            <h2  class="display-1">CONTACT US</h2>
             <v-divider></v-divider>
-            <h2>Dont be a stranger</h2>
-            <h3>Just say hello</h3>
+            <h3 style="font-weight: 300">Experiencing any issues, or just chatty? Either way, we'd love to hear from you.</h3>
           </v-flex>
         </v-layout>
-        <v-layout ml-3 mr-3 ml-sm-5 mr-sm-5 pl-sm-5 pr-sm-5 row wrap xl6>
+        <v-layout ml-3 mr-3 :class="{'ml-5': $vuetify.breakpoint.mdAndUp, 'mr-5': $vuetify.breakpoint.mdAndUp, 'pl-5': $vuetify.breakpoint.mdAndUp, 'pr-5': $vuetify.breakpoint.mdAndUp}" row wrap>
           <v-flex class="text-xs-center" xs12>
             <v-form id="queryForm">
               <v-flex d-none>
@@ -335,8 +329,10 @@ background: linear-gradient(180deg, rgba(54,98,119,0.8442109265581232) 0%, rgba(
                   v-model="getRandomVal"
                 ></v-text-field>
               </v-flex>
-              <v-flex>
-                <v-text-field
+              <v-flex mb-3>
+                <v-text-field 
+                  style="background-color: white; border-radius: 5px"
+                  hide-details
                   required
                   @input="$v.name.$touch()"
                   @blur="$v.name.$touch()"
@@ -347,8 +343,11 @@ background: linear-gradient(180deg, rgba(54,98,119,0.8442109265581232) 0%, rgba(
                   v-model="name"
                 ></v-text-field>
               </v-flex>
-              <v-flex>
+              <v-flex mb-3>
                 <v-text-field
+                  style="background-color: white; border-radius: 5px"
+
+                  hide-details
                   required
                   @input="$v.email.$touch()"
                   @blur="$v.email.$touch()"
@@ -360,9 +359,12 @@ background: linear-gradient(180deg, rgba(54,98,119,0.8442109265581232) 0%, rgba(
                   v-model="email"
                 ></v-text-field>
               </v-flex>
-              <v-flex>
+              <v-flex mb-3>
                 <v-text-field
                   required
+                  style="background-color: white; border-radius: 5px"
+
+                  hide-details
                   @input="$v.subject.$touch()"
                   @blur="$v.subject.$touch()"
                   :error-messages="subjectErrors"
@@ -374,6 +376,9 @@ background: linear-gradient(180deg, rgba(54,98,119,0.8442109265581232) 0%, rgba(
               </v-flex>
               <v-flex>
                 <v-textarea
+                  style="background-color: white; border-radius: 5px"
+
+                  hide-details
                   required
                   @input="$v.message.$touch()" 
                   @blur="$v.message.$touch()"
@@ -391,7 +396,7 @@ background: linear-gradient(180deg, rgba(54,98,119,0.8442109265581232) 0%, rgba(
               </v-flex>
             </v-form>
           </v-flex>
-          <v-flex text-xs-center>
+          <v-flex pt-3 text-xs-center>
             <v-btn :disabled="!formValid" @click="submitQuery">Submit Enquiry</v-btn>
           </v-flex>
         </v-layout>
