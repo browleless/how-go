@@ -13,12 +13,15 @@
         >{{ alertText }}</v-alert>
         <v-card>
           <v-container fluid>
-            <v-layout row>
-              <v-flex xs5 sm4 md3>
-                <v-img :src="photo" height="130px" contain></v-img>
+            <v-layout row wrap>
+              <v-flex text-xs-center xs12 sm4 lg3>
+                <v-avatar class="ma-3" size="90">
+                  <img :src="photo">
+                </v-avatar>
+                <br>
                 <v-btn @click="handleChangeAccount">Change account</v-btn>
               </v-flex>
-              <v-flex xs7 sm8 md9>
+              <v-flex align-self-center xs12 sm8 lg9>
                 <v-card-title primary-title>
                   <v-flex>
                     <h2>{{ name }}</h2>
@@ -31,6 +34,7 @@
                     <v-layout>
                       <v-flex xs6 sm5 md4 lg3 xl2 v-if="this.update">
                         <v-text-field
+                          hide-details
                           v-model="postalCode"
                           label="Postal Code"
                           maxlength="6"
