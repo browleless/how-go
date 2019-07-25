@@ -392,8 +392,15 @@ background: linear-gradient(180deg, rgba(117,101,164,1) 0%, rgba(111,196,212,1) 
               </v-flex>
             </v-form>
           </v-flex>
-          <v-flex pt-3 text-xs-center>
-            <v-btn :disabled="!formValid" @click="submitQuery">Submit Enquiry</v-btn>
+          <v-spacer></v-spacer>
+          <v-flex pt-3 class="text-xs-right">
+            <v-spacer></v-spacer>
+            <vue-recaptcha ref="recaptcha" sitekey="6LcRb68UAAAAABAAl3wqVtcyeYPKbVaPQfC8UfFh" @verify="submitVerify" @expired="onCaptchaExpired" :loadRecaptchaScript="true"></vue-recaptcha>
+          </v-flex>
+          <v-flex pt-2 text-xs-right>
+            <v-btn  large fab :disabled="!formValid" @click="submitQuery">
+              <v-icon>mail_outline</v-icon>
+            </v-btn>
           </v-flex>
         </v-layout>
       </v-container>
@@ -429,6 +436,7 @@ import PlaceAutocompleteField from "./PlaceAutocompleteField.vue";
 import * as emailjs from "emailjs-com";
 import { validationMixin } from "vuelidate";
 import { required, email, maxLength } from "vuelidate/lib/validators";
+import VueRecaptcha from 'vue-recaptcha';
 
 export default {
   mixins: [validationMixin],
@@ -443,7 +451,8 @@ export default {
   },
   components: {
     PlaceAutocompleteField,
-    Map
+    Map,
+    VueRecaptcha
   },
   name: "Landing",
   data() {
@@ -465,10 +474,15 @@ export default {
       message: "",
       submission: false,
       submitMsg: "",
-      submitHeadline: ""
+      submitHeadline: "",
+      captchaSuccess: false
     };
   },
   methods: {
+    submitVerify() {
+      this.captchaSuccess = true
+    },
+    onCaptchaExpired () { this.$refs.recaptcha.reset() } ,
     submitQuery() {
       if (this.$v.$invalid) {
         this.submitHeadline = "Error encountered"
@@ -491,6 +505,7 @@ export default {
             this.submission = true;
             this.queryFormReset();
             this.$v.$reset() 
+            this.$refs.recaptcha.reset()
           },
           err => {
             console.log("FAILED...", err);
@@ -825,7 +840,7 @@ export default {
       return errors;
     },
     formValid() {
-      return this.name && this.email && this.subject && this.message;
+      return this.name && this.email && this.subject && this.message && this.captchaSuccess;
     },
     getRandomVal() {
       return (Math.random() * 100000) | 0;
