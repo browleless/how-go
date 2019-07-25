@@ -187,7 +187,7 @@
       </v-flex>
 
       <v-flex d-flex sm7 md8 lg9 order-sm2 order-xs1>
-        <v-flex v-if="!loaded || scheduleDelete" class="text-xs-center">
+        <v-flex align-self-center v-if="!loaded || scheduleDelete" class="text-xs-center">
           <v-progress-circular
             v-if="!loaded"
             indeterminate
@@ -219,7 +219,7 @@
               value="true"
               :dismissible="scheduled"
               :type="scheduled ? 'success' : 'warning'"
-              :color="scheduled ? 'rgba(105, 240, 174, 0.95)' : '#ff5252'"
+              :color="scheduled ? 'teal lighten-1' : '#ff5252'"
             >
               {{ alertText }}
               <countdown
@@ -248,11 +248,11 @@
                   <template v-for="event in eventsMap[date]">
                     <!-- timed events -->
                     <div
-                      v-if="event.time"
+                      v-if="event.startTime"
                       :key="event.id"
-                      :style="{ top: timeToY(event.time) + 'px', height: minutesToPixels(event.duration) + 'px' }"
+                      :style="{ top: timeToY(event.startTime) + 'px', height: minutesToPixels(event.duration) + 'px' }"
                       :class="event.id === 1 ? 'line' : event.id === 2 ? 'lineCircle' : 'my-event with-time'"
-                      @click="open(event)"
+                      @click="showEventDetails(event)"
                     >
                       {{ event.title }}
                       <div
@@ -267,6 +267,153 @@
         </v-layout>
       </v-flex>
     </v-layout>
+    <v-dialog v-model="showEvent" max-width="400">
+      <v-card style="border-radius: 10px; z-index: 999">
+        <v-card-title class="pt-1 pb-1">
+          <v-spacer></v-spacer>
+          <v-btn icon>
+            <v-icon @click="editMode = !editMode">edit</v-icon>
+          </v-btn>
+          <v-btn @click="deleteSelectedEvent" icon>
+            <v-icon>delete</v-icon>
+          </v-btn>
+          <v-btn icon>
+            <v-icon @click="showEvent = false">close</v-icon>
+          </v-btn>
+        </v-card-title>
+        <v-card-text v-if="!editMode" class="pt-0">
+          <v-layout row wrap>
+            <v-flex pb-3 xs12>
+              <v-layout row wrap>
+                <v-flex align-self-center xs1>
+                  <v-icon>info</v-icon>
+                </v-flex>
+                <v-flex ml-1 font-weight-medium headline>
+                  {{ selectedEvent.title }}
+                  <div class="subheading">
+                    {{ new Date(selectedEvent.date.split('-')[0], selectedEvent.date.split('-')[1] - 1, selectedEvent.date.split('-')[2]).toString().slice(0, 11).replace(' ', ', ') }}
+                    <span class="ml-1 mr-1">·</span>
+                    {{ getTwelveHourTime(selectedEvent.startTime.slice(0, 6)) }}
+                    –
+                    {{ getTwelveHourTime(selectedEvent.endTime.slice(0, 6)) }}
+                  </div>
+                </v-flex>
+              </v-layout>
+            </v-flex>
+            <v-flex v-if="selectedEvent.description" pb-3 xs12>
+              <v-layout row wrap>
+                <v-flex xs1>
+                  <v-icon>list</v-icon>
+                </v-flex>
+                <v-flex ml-1 subheading>
+                  {{ selectedEvent.description }}
+                </v-flex>
+              </v-layout>
+            </v-flex>
+            <v-flex xs12>
+              <v-layout row wrap>
+                <v-flex xs1>
+                  <v-icon>location_on</v-icon>
+                </v-flex>
+                <v-flex ml-1 subheading>
+                  {{ selectedEvent.location }}
+                </v-flex>
+              </v-layout>
+            </v-flex>
+          </v-layout>
+        </v-card-text>
+        <v-flex v-if="editMode" pl-4 pr-4 pt-1 pb-2>
+          <form @submit.prevent="updateEvent">
+            <v-text-field
+              v-model="selectedEvent.title"
+              :counter="20"
+              label="Title"
+              :error-messages="titleErrors"
+              required
+              @input="$v.title.$touch()"
+              @blur="$v.title.$touch()"
+            ></v-text-field>
+            <v-text-field v-model="selectedEvent.description" label="Description"></v-text-field>
+
+            <place-autocomplete-field
+              label="Location"
+              class="mb-3"
+              v-model="selectedEvent.location"
+              required
+              placeholder="Enter an address, zipcode, or location"
+              @input="$v.location.$touch()"
+              @blur="$v.location.$touch()"
+              api-key="AIzaSyAhSv9zWvisiTXRPRw6K8AE0DCmrRMpQcU"
+            ></place-autocomplete-field>
+
+            <v-layout row wrap>
+              <v-flex pa-0 class="text-xs-right">
+                <v-dialog persistent v-model="dateDialog" max-width="290">
+                  <template v-slot:activator="{ on }">
+                    <v-btn color="primary" dark v-on="on">Change Date</v-btn>
+                  </template>
+                  <v-card>
+                    <v-date-picker
+                      v-model="selectedEvent.date"
+                      color="primary"
+                      :reactive="reactive"
+                      :min="today"
+                    ></v-date-picker>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn color="green darken-1" flat @click="dateDialog=false">Close</v-btn>
+                      <v-btn color="green darken-1" flat @click="onSaveDate">Save</v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
+              </v-flex>
+              <v-flex pa-0 class="text-xs-left">
+                <v-dialog persistent v-model="timeDialog" max-width="270">
+                  <template v-slot:activator="{ on }">
+                    <v-btn color="primary" dark v-on="on">Change Time</v-btn>
+                  </template>
+                  <v-card>
+                    <v-time-picker :allowed-minutes="min => min % 5 === 0" v-model="selectedEvent.startTime" type="month" width="270"></v-time-picker>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn color="green darken-1" flat @click="timeDialog=false">Close</v-btn>
+                      <v-btn color="green darken-1" flat @click="onSaveTime">Save</v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
+              </v-flex>
+            </v-layout>
+                  
+            <div v-if="eventSelectedDate" class="subheading pt-2 pb-1">
+              Amended Date: {{ new Date(selectedEvent.date.split('-')[0], selectedEvent.date.split('-')[1] - 1, selectedEvent.date.split('-')[2]).toString().slice(0, 15) }}
+            </div>
+            <div v-if="eventSelectedTime" class="subheading pt-1 pb-1">
+              Amended Time: {{ getTwelveHourTime(selectedEvent.startTime).toUpperCase() }}
+            </div>
+            <div class="subheading pt-1 pb-2">
+              Duration: 
+              <span v-if="selectedEvent.duration < 60">
+                {{ selectedEvent.duration }} mins
+              </span>
+              <span v-if="selectedEvent.duration >= 60">
+                {{ Math.floor(selectedEvent.duration / 60) }} hr {{ selectedEvent.duration - (Math.floor(selectedEvent.duration / 60) * 60)}} mins
+              </span>
+            </div>
+
+            <v-slider hide-details class="ma-0" append-icon="add" prepend-icon="remove" v-model="selectedEvent.duration" min="15" max="180" step="15" @click:append="increaseSelectedDuration" @click:prepend="decreaseSelectedDuration"></v-slider>
+
+            <v-layout row wrap>
+              <v-flex pa-0 class="text-xs-center">
+                <v-btn type="submit">
+                  Update Event
+                </v-btn>
+              </v-flex>
+            </v-layout>
+            
+          </form>
+        </v-flex>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -334,6 +481,7 @@ export default {
     dateDialog: false,
     timeDialog: false,
     loadingText: '',
+    showEvent: false,
     //newEvent
     title: "",
     location: "",
@@ -341,13 +489,24 @@ export default {
     duration: 60,
     startTime: "",
     startDate: "",
-    endDate: "",
     selectedTime: false,
     selectedDate: false,
+    selectedEvent: {
+      title: '',
+      description: '',
+      duration: '',
+      location: '',
+      date: '',
+      startTime: '',
+      endTime: ''
+    },
+    eventSelectedTime: false,
+    eventSelectedDate: false,
 
     reactive: true,
     loaded: false,
-    scheduleDelete: false
+    scheduleDelete: false,
+    editMode: false
   }),
   computed: {
     // convert the list of events into a map of lists keyed by date
@@ -418,8 +577,12 @@ export default {
     this.$refs.calendar.scrollToTime("08:00");
   },
   methods: {
-    open(event) {
-      alert(event.title);
+    showEventDetails(event) {
+      this.editMode = false
+      this.selectedEvent = JSON.parse(JSON.stringify(event))
+      this.eventSelectedDate = false
+      this.eventSelectedTime = false
+      this.showEvent = true
     },
     promptForm() {
       this.showForm = !this.showForm;
@@ -428,15 +591,14 @@ export default {
     onSaveDate() {
       this.dateDialog = false;
       this.selectedDate = true
-      console.log(this.startDate);
+      this.eventSelectedDate = true
     },
     onSaveTime() {
       this.timeDialog = false;
       this.selectedTime = true
-      console.log(this.startTime);
+      this.eventSelectedTime = true
     },
     clear() {
-      console.log(this.today);
       this.$v.$reset();
       this.title = "";
       this.description = "";
@@ -446,12 +608,27 @@ export default {
       this.startTime = "";
       this.selectedDate = false
       this.selectedTime = false
+      this.selectedEvent = {
+        title: '',
+        description: '',
+        duration: '',
+        location: '',
+        date: '',
+        startTime: '',
+        endTime: ''
+      }
     },
     increaseDuration() {
       this.duration = (this.duration + 15) || 180
     },
     decreaseDuration() {
       this.duration = (this.duration - 15) || 0
+    },
+    increaseSelectedDuration() {
+      this.selectedEvent.duration = (this.selectedEvent.duration + 15) || 180
+    },
+    decreaseSelectedDuration() {
+      this.selectedEvent.duration = (this.selectedEvent.duration - 15) || 0
     },
     async createNewEvent() {
       await this.$gAuth.gapi.client.calendar.events.insert({
@@ -472,10 +649,45 @@ export default {
           overrides: [{ method: "popup", minutes: 0 }]
         }
       });
+      this.clear()
       await this.updateCalendar()
       this.$refs.calendar.scrollToTime(this.startTime)
       console.log("Event Added");
-      this.clear
+    },
+    async updateEvent() {
+      await this.$gAuth.gapi.client.calendar.events.update({
+        calendarId: "primary",
+        eventId: this.selectedEvent.uid,
+        summary: this.selectedEvent.title,
+        description: this.selectedEvent.description,
+        location: this.selectedEvent.location,
+        start: {
+          dateTime: this.selectedEvent.date + "T" + this.selectedEvent.startTime + ":00+08:00",
+          timeZone: "Asia/Singapore"
+        },
+        end: {
+          dateTime: this.selectedEvent.date + "T" + this.getTime((this.selectedEvent.startTime + ':00'), (this.selectedEvent.duration * 60 * -1)) + "+08:00",
+          timeZone: "Asia/Singapore"
+        },
+        reminders: {
+          useDefault: false,
+          overrides: [{ method: "popup", minutes: 0 }]
+        }
+      });
+      this.showEvent = false
+      await this.updateCalendar()
+      this.$refs.calendar.scrollToTime(this.selectedEvent.startTime)
+      this.clear()
+      console.log("Event updated");
+    },
+    async deleteSelectedEvent() {
+      await this.$gAuth.gapi.client.calendar.events.delete({
+          calendarId: "primary",
+          eventId: this.selectedEvent.uid
+        });
+      this.showEvent = false
+      await this.updateCalendar()
+      this.$refs.calendar.scrollToTime('08:00')
     },
     async updateCalendar() {
       this.loaded = false;
@@ -494,18 +706,23 @@ export default {
       for (var i = 0; i < events.result.items.length; i++) {
         var eventInfo = {};
         eventInfo["twelveHrTime"] = this.getTwelveHourTime(events.result.items[i].start.dateTime.slice(11, 16));
+        eventInfo["uid"] = events.result.items[i].id
         eventInfo["title"] = events.result.items[i].summary;
         eventInfo["date"] = events.result.items[i].start.dateTime.slice(0, 10);
-        eventInfo["time"] = events.result.items[i].start.dateTime.slice(11, 19);
+        eventInfo["description"] = events.result.items[i].description;
+        eventInfo["startTime"] = events.result.items[i].start.dateTime.slice(11, 16);
+        eventInfo["endTime"] = events.result.items[i].end.dateTime.slice(11, 19);
         eventInfo["duration"] =
           (new Date(events.result.items[i].end.dateTime).getTime() -
             new Date(events.result.items[i].start.dateTime).getTime()) /
           60000;
-        if (events.result.items[i].location) {
+        if (events.result.items[i].location && events.result.items[i].location.indexOf(',') !== -1) {
           eventInfo["location"] = events.result.items[i].location.substring(
             0,
             events.result.items[i].location.indexOf(",")
           );
+        } else {
+          eventInfo['location'] = events.result.items[i].location
         }
         if (eventInfo.duration === 0) {
           eventInfo.duration = 25;
