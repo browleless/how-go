@@ -80,7 +80,7 @@ background: linear-gradient(180deg, rgba(54,98,119,0.8442109265581232) 0%, rgba(
             <img src="../assets/img/location5.gif" height="280px" />
             <h3
               style=" width:60%; text-align:center;margin:0 auto;"
-            >Conveniently map out places you have to be!</h3>
+            >Conveniently map out places you have to be</h3>
             <h3 style=" width:80%; text-align:center;margin:0 auto;"></h3>
           </v-flex>
           <v-flex
@@ -108,7 +108,7 @@ background: linear-gradient(180deg, rgba(54,98,119,0.8442109265581232) 0%, rgba(
           >
             <img src="../assets/img/warning4.gif" height="280px" />
             <h3 style=" width:80%; text-align:center;margin:0 auto">Receive prompts to leave</h3>
-            <h3 style=" width:80%; text-align:center;margin:0 auto;">Never be late again!</h3>
+            <h3 style=" width:80%; text-align:center;margin:0 auto;">Never be late again</h3>
           </v-flex>
           <v-flex
             class="text-xs-center"
@@ -120,7 +120,7 @@ background: linear-gradient(180deg, rgba(54,98,119,0.8442109265581232) 0%, rgba(
           >
             <img src="../assets/img/warning3.jpg" height="280px" />
             <h3 style=" width:80%; text-align:center;margin:0 auto">Receive prompts to leave</h3>
-            <h3 style=" width:80%; text-align:center;margin:0 auto;">Never be late again!</h3>
+            <h3 style=" width:80%; text-align:center;margin:0 auto;">Never be late again</h3>
           </v-flex>
         </v-layout>
       </v-container>
@@ -142,7 +142,7 @@ background: linear-gradient(180deg, rgba(54,98,119,0.8442109265581232) 0%, rgba(
               style="background-color: rgba(0, 0, 0, 0.4); border-radius: 25px"
               class="white--text px-4 py-2"
             >
-              <v-flex>
+              <v-flex pb-2>
                 <h3 style="font-weight: bold" class="display-3">Have a Go</h3>
                 <v-divider></v-divider>
                 <span
@@ -157,7 +157,7 @@ background: linear-gradient(180deg, rgba(54,98,119,0.8442109265581232) 0%, rgba(
             <v-layout column wrap>
               <v-flex xs12>
                 <v-card style="z-index: 504">
-                  <v-toolbar extended :extension-height="from && to ? '220px' : '130px'" color="light-blue lighten-2">
+                  <v-toolbar extended :extension-height="from && to ? '208px' : '130px'" color="light-blue lighten-2">
                     <v-icon>directions</v-icon>
                     <v-toolbar-title justify-space-around>
                       <v-card-text class="title">HowGo?</v-card-text>
@@ -171,7 +171,7 @@ background: linear-gradient(180deg, rgba(54,98,119,0.8442109265581232) 0%, rgba(
                           <place-autocomplete-field solo class="mb-3" icon="flag" @autocomplete-select="fillTo" placeholder="Enter your destination's location" api-key="AIzaSyAhSv9zWvisiTXRPRw6K8AE0DCmrRMpQcU"></place-autocomplete-field>
                         </v-flex>
                         <v-flex v-if="to && from">
-                          <v-radio-group class="pt-1 pb-3" v-model="sortBy" hide-details row>
+                          <v-radio-group class="pt-1 pb-1" v-model="sortBy" hide-details row>
                             <div class="pr-1">Sort By:</div>
                             <v-radio 
                               color="black"
@@ -300,20 +300,20 @@ background: linear-gradient(180deg, rgba(54,98,119,0.8442109265581232) 0%, rgba(
             </v-layout>
           </v-flex>
           <v-flex xs7 :class="$vuetify.breakpoint.smAndDown ? 'mt-4' : 'pl-4'">
-            <Map ref="map" style="height:520px; position: relative" />
+            <Map ref="map" style="height:570px; position: relative" />
           </v-flex>
         </v-layout>
       </v-container>
     </v-responsive>
 
-    <v-responsive style="height: 100vh;  background: rgb(117,101,164);
+    <v-responsive :style="$vuetify.breakpoint.xs ? {'height': '100%'} : {'height': '100vh'}" style="background: rgb(117,101,164);
 background: linear-gradient(180deg, rgba(117,101,164,1) 0%, rgba(111,196,212,1) 100%); ">
       <v-container>
         <v-layout row pa-5>
           <v-flex style="color: white" text-xs-center>
             <h2  class="display-1">CONTACT US</h2>
             <v-divider></v-divider>
-            <h3 style="font-weight: 300">Experiencing any issues, or just chatty? Either way, we'd love to hear from you.</h3>
+            <h3 style="font-weight: 300">Experiencing any issues? Or, just chatty? Either way, we'd love to hear from you.</h3>
           </v-flex>
         </v-layout>
         <v-layout ml-3 mr-3 :class="{'ml-5': $vuetify.breakpoint.mdAndUp, 'mr-5': $vuetify.breakpoint.mdAndUp, 'pl-5': $vuetify.breakpoint.mdAndUp, 'pr-5': $vuetify.breakpoint.mdAndUp}" row wrap>

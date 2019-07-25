@@ -29,32 +29,36 @@
                 </v-btn>
               </v-flex>
 
-              <v-flex class="pa-4" v-if="showForm">
+              <v-flex class="pt-3 pl-4 pb-4 pr-4" v-if="showForm">
+                <form @submit.prevent="scheduleReminders">
                 <v-flex class="text-xs-left">
                   <div class="subheading">I want to reach my destinations</div>
                 </v-flex>
                 <v-flex>
                   <v-layout row wrap align-end mt-1>
-                    <v-flex xs4>
+                    <v-flex xs5>
                        <v-text-field
                         class="pa-0 ma-0"
-                        hide-details
                         v-model="minutesEarlierBy"
+                        :error-messages="minutesErrors"
                         label="Minutes"
                         maxlength="3"
                         onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                        
+                    @input="$v.minutesEarlierBy.$touch()"
+                    @blur="$v.minutesEarlierBy.$touch()"
                       ></v-text-field>
                     </v-flex>
-                    <v-flex subheading>
+                    <v-flex align-self-center subheading>
                       earlier
                     </v-flex>
                   </v-layout>
                 </v-flex>
-                <v-layout mt-3 row wrap>
+                <v-layout mt-1 row wrap>
                   <v-flex pa-0 class="text-xs-right">
                     <v-btn
                       :disabled="this.minutesEarlierBy === '' || this.scheduledOnce === true"
-                      @click="scheduleReminders"
+                      type="submit"
                       class="info"
                     >Submit</v-btn>
                   </v-flex>
@@ -62,6 +66,7 @@
                     <v-btn v-if="showForm" @click="promptForm" class="error">Close</v-btn>
                   </v-flex>
                 </v-layout>
+                </form>
               </v-flex>
 
               <v-flex xs6 v-if="!showForm">
@@ -92,23 +97,16 @@
                   <v-text-field v-model="description" label="Description"></v-text-field>
 
                   <place-autocomplete-field
+                    v-model="location"
                     label="Location"
                     class="mb-3"
-                    v-model="location"
                     required
                     placeholder="Enter an address, zipcode, or location"
+                    :error-messages="locationErrors"
                     @input="$v.location.$touch()"
                     @blur="$v.location.$touch()"
                     api-key="AIzaSyAhSv9zWvisiTXRPRw6K8AE0DCmrRMpQcU"
                   ></place-autocomplete-field>
-                  <!-- <v-text-field
-                    v-model="location"
-                    :error-messages="locationErrors"
-                    label="Location"
-                    required
-                    @input="$v.location.$touch()"
-                    @blur="$v.location.$touch()"
-                  ></v-text-field>-->
 
                   <v-layout row wrap>
                     <v-flex pa-0 class="text-xs-right">
@@ -328,21 +326,16 @@
               v-model="selectedEvent.title"
               :counter="20"
               label="Title"
-              :error-messages="titleErrors"
               required
-              @input="$v.title.$touch()"
-              @blur="$v.title.$touch()"
             ></v-text-field>
             <v-text-field v-model="selectedEvent.description" label="Description"></v-text-field>
 
             <place-autocomplete-field
               label="Location"
               class="mb-3"
-              v-model="selectedEvent.location"
+              v-model="selectedEvent.fullLocation"
               required
               placeholder="Enter an address, zipcode, or location"
-              @input="$v.location.$touch()"
-              @blur="$v.location.$touch()"
               api-key="AIzaSyAhSv9zWvisiTXRPRw6K8AE0DCmrRMpQcU"
             ></place-autocomplete-field>
 
@@ -425,7 +418,10 @@ import {
   required,
   maxLength,
   minLength,
-  integer
+  integer,
+  minValue,
+  maxValue
+
 } from "vuelidate/lib/validators";
 
 const d = new Date();
@@ -461,13 +457,9 @@ export default {
   },
   validations: {
     title: { required, maxLength: maxLength(20) },
-    location: {
-      required,
-      maxLength: maxLength(6),
-      minLength: minLength(6),
-      integer
-    },
-    description: {}
+    location: {required},
+    description: {},
+    minutesEarlierBy: { required, minValue: minValue(0), maxValue: maxValue(180), integer}
   },
   data: () => ({
     today: currDate,
@@ -557,14 +549,20 @@ export default {
     locationErrors() {
       const errors = [];
       if (!this.$v.location.$dirty) return errors;
-
-      !this.$v.location.integer &&
-        errors.push("Postal Code should only contain numbers");
-      !this.$v.location.minLength &&
-        errors.push("Postal Code should contain 6 characters");
-      !this.$v.location.maxLength &&
-        errors.push("Postal Code should contain 6 characters");
       !this.$v.location.required && errors.push("Location is required");
+      return errors;
+    },
+    minutesErrors() {
+      const errors = [];
+      if (!this.$v.minutesEarlierBy.$dirty) return errors;
+
+      !this.$v.minutesEarlierBy.integer &&
+        errors.push("Please enter digits only");
+      !this.$v.minutesEarlierBy.minValue &&
+        errors.push("Please enter a minimum value of 0");
+      !this.$v.minutesEarlierBy.maxValue &&
+        errors.push("Max Duration: 180");
+      !this.$v.minutesEarlierBy.required && errors.push("Please input a value");
       return errors;
     }
   },
@@ -572,11 +570,19 @@ export default {
     if (this.$gAuth.isInit) {
       await this.updateCalendar();
     } else {
-      setTimeout(await this.updateCalendar, 1100);
+      await this.wait(1500)
+      .then(async () => {
+        await this.updateCalendar()
+      })
     }
     this.$refs.calendar.scrollToTime("08:00");
   },
   methods: {
+    async wait(ms) {
+      return new Promise(resolve => {
+        setTimeout(resolve, ms)
+      })
+    },
     showEventDetails(event) {
       this.editMode = false
       this.selectedEvent = JSON.parse(JSON.stringify(event))
@@ -587,6 +593,7 @@ export default {
     promptForm() {
       this.showForm = !this.showForm;
       this.minutesEarlierBy = ''
+      this.$v.$reset();
     },
     onSaveDate() {
       this.dateDialog = false;
@@ -660,7 +667,7 @@ export default {
         eventId: this.selectedEvent.uid,
         summary: this.selectedEvent.title,
         description: this.selectedEvent.description,
-        location: this.selectedEvent.location,
+        location: this.selectedEvent.fullLocation,
         start: {
           dateTime: this.selectedEvent.date + "T" + this.selectedEvent.startTime + ":00+08:00",
           timeZone: "Asia/Singapore"
@@ -693,8 +700,8 @@ export default {
       this.loaded = false;
       const dateTimeNow = new Date().toString();
       this.events = [
-        { date: currDate, time: dateTimeNow.slice(15, 24), duration: 0, id: 1 },
-        { date: currDate, time: dateTimeNow.slice(15, 24), duration: 0, id: 2 }
+        { date: currDate, startTime: dateTimeNow.slice(15, 24), duration: 0, id: 1 },
+        { date: currDate, startTime: dateTimeNow.slice(15, 24), duration: 0, id: 2 }
       ];
       const events = await this.$gAuth.gapi.client.calendar.events.list({
         calendarId: "primary",
@@ -708,6 +715,7 @@ export default {
         eventInfo["twelveHrTime"] = this.getTwelveHourTime(events.result.items[i].start.dateTime.slice(11, 16));
         eventInfo["uid"] = events.result.items[i].id
         eventInfo["title"] = events.result.items[i].summary;
+        eventInfo["fullLocation"] = events.result.items[i].location;
         eventInfo["date"] = events.result.items[i].start.dateTime.slice(0, 10);
         eventInfo["description"] = events.result.items[i].description;
         eventInfo["startTime"] = events.result.items[i].start.dateTime.slice(11, 16);

@@ -24,7 +24,7 @@
     </v-navigation-drawer>
 
     <v-toolbar style="color: #69F0AE" color="#212121">
-      <v-toolbar-side-icon @click="sideNav = !sideNav" class="hidden-sm-and-up"></v-toolbar-side-icon>
+      <v-toolbar-side-icon @click="sideNav = !sideNav" class="hidden-sm-and-up"><v-icon color='#69F0AE' >menu</v-icon></v-toolbar-side-icon>
       <v-toolbar-title>
         <router-link to="/home" tag="span" style="cursor: pointer">HowGo?</router-link>
       </v-toolbar-title>
