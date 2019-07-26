@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-flex xs12 sm10 md8 offset-sm1 offset-md2>
-      <v-tabs fixed-tabs color="blue-grey lighten-1" dark slider-color="yellow">
+      <v-tabs v-model="selectedTab" fixed-tabs color="blue-grey lighten-1" dark slider-color="yellow">
         <v-tab @click="loadToday">Today</v-tab>
         <v-tab @click="loadTomorrow">Tomorrow</v-tab>
       </v-tabs>
@@ -32,6 +32,18 @@
 
 <script>
 export default {
+  data() {
+    return {
+      selectedTab: null
+    }
+  },
+  mounted() {
+    if (this.$store.state.today) {
+      this.selectedTab = 0
+    } else {
+      this.selectedTab = 1
+    }
+  },
   computed: {
     places() {
       return this.$store.getters.calendarEvents;
