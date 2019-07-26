@@ -19,8 +19,8 @@ export default {
     Map
   },
   methods: {
-    renderPolyline(latlngs) {
-      this.$refs.map.insertPolyline(latlngs)
+    renderPolyline(latlngs, trip) {
+      this.$refs.map.insertPolyline(latlngs, trip)
     }
   },
   mounted() {

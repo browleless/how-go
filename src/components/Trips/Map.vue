@@ -2,14 +2,15 @@
   <div>
     <l-map ref="map" style="position: absolute" :center="center" :zoom="zoom">
       <l-tile-layer :url="url" :attribution="attribution"/>
-      <l-marker v-for="marker in markers" :icon="marker.icon" :lat-lng="marker.latLng" :key="marker.id">
+      <l-marker v-for="marker in markers" :icon="marker.icon" :lat-lng="marker.latLng" :key="marker.id" @add="$nextTick(() => $event.target.openPopup())">
+        <l-popup :content="marker.content"></l-popup>
       </l-marker>
     </l-map>
   </div>
 </template>
 
 <script>
-import { LMap, LTileLayer, LMarker } from "vue2-leaflet"
+import { LMap, LTileLayer, LMarker, LPopup } from "vue2-leaflet"
 
 import { Icon } from 'leaflet'
 
@@ -27,7 +28,8 @@ export default {
   components: {
     LMap,
     LTileLayer,
-    LMarker
+    LMarker,
+    LPopup
   },
   data() {
     return {
@@ -47,7 +49,7 @@ export default {
   },
 
   methods: {
-    insertPolyline(points) {
+    insertPolyline(points, trip) {
       if (this.polyline !== null) {
         this.removePolyline()
         this.markers = []
@@ -69,7 +71,8 @@ export default {
           iconAnchor: [12, 41],
           popupAnchor: [1, -34],
           shadowSize: [41, 41]
-        })
+        }),
+        content: trip.origin
       })
       this.markers.push({
         latLng: points[points.length - 1],
@@ -80,7 +83,8 @@ export default {
           iconAnchor: [12, 41],
           popupAnchor: [1, -34],
           shadowSize: [41, 41]
-        })
+        }),
+        content: trip.destination
       })
       map.fitBounds(points)
     },

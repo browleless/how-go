@@ -62,7 +62,7 @@
             <v-expansion-panel-content
               v-for="trip in sortedItineraries"
               :key="trip.index"
-              @click.native="$emit('render-polyline', trip.polyline)"
+              @click.native="$emit('render-polyline', trip.polyline, trip)"
             >
               <template v-slot:header>
                 <v-layout class="subheading" style="height: 70px" column>
@@ -230,6 +230,17 @@ export default {
             } else {
               tripInfo['cost'] = routes[k].fare
             }
+            const capitalize = words =>
+                words
+                  .split(" ")
+                  .map(
+                    word =>
+                      word.substring(0, 1).toUpperCase() +
+                      word.substring(1).toLowerCase()
+                  )
+                  .join(" ");
+            tripInfo['origin'] = capitalize(this.currEvent.name)
+            tripInfo['destination'] = capitalize(this.nextEvent.name)
             var fullInstructions = []
             var polylineLatLng = []
             for (var l = 0; l < routes[k].legs.length; l++) {

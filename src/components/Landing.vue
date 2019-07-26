@@ -217,7 +217,7 @@ background: linear-gradient(180deg, rgba(54,98,119,0.8442109265581232) 0%, rgba(
                     <v-expansion-panel-content
                       v-for="trip in sortedItineraries"
                       :key="trip.index"
-                      @click.native="renderPolyline(trip.polyline)"
+                      @click.native="renderPolyline(trip.polyline, trip)"
                     >
                       <template v-slot:header>
                         <v-layout class="subheading" style="height: 70px" column>
@@ -610,6 +610,8 @@ export default {
             } else {
               tripInfo["cost"] = routes[k].fare;
             }
+            tripInfo['origin'] = this.from.name
+            tripInfo['destination'] = this.to.name
             var fullInstructions = [];
             var polylineLatLng = [];
             for (var l = 0; l < routes[k].legs.length; l++) {
@@ -733,11 +735,6 @@ export default {
             )
             .then(res => {
               var eventInfo = {};
-              eventInfo["name"] = res.data.GeocodeInfo[0].BUILDINGNAME;
-              eventInfo["latlng"] =
-                res.data.GeocodeInfo[0].LATITUDE +
-                "," +
-                res.data.GeocodeInfo[0].LONGITUDE;
               const capitalize = words =>
                 words
                   .split(" ")
@@ -747,6 +744,11 @@ export default {
                       word.substring(1).toLowerCase()
                   )
                   .join(" ");
+              eventInfo["name"] = capitalize(res.data.GeocodeInfo[0].BUILDINGNAME);
+              eventInfo["latlng"] =
+                res.data.GeocodeInfo[0].LATITUDE +
+                "," +
+                res.data.GeocodeInfo[0].LONGITUDE;
               if (res.data.GeocodeInfo[0].BUILDINGNAME) {
                 this.fromStr =
                   capitalize(res.data.GeocodeInfo[0].BUILDINGNAME) +
@@ -805,8 +807,8 @@ export default {
         }
       }
     },
-    renderPolyline(latlngs) {
-      this.$refs.map.insertPolyline(latlngs);
+    renderPolyline(latlngs, trip) {
+      this.$refs.map.insertPolyline(latlngs, trip);
     }
   },
   computed: {
