@@ -1072,7 +1072,7 @@ export default {
 
 .line {
   position: absolute;
-  z-index: 504;
+  z-index: 100;
   border-top: #ea4335 solid 2px;
   left: 0;
   right: -1px;
@@ -1087,6 +1087,10 @@ export default {
   margin-left: -6.5px;
   margin-top: -5px;
   width: 12px;
-  z-index: 504;
+  z-index: 100;
+}
+
+>>> .v-dialog {
+  overflow-y: visible;
 }
 </style>

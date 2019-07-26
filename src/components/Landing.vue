@@ -198,7 +198,7 @@ background: linear-gradient(180deg, rgba(54,98,119,0.8442109265581232) 0%, rgba(
                       </v-layout>
                     </template>
                     <v-spacer></v-spacer>
-                    <v-btn :disabled="!to && !from" @click="getRoute" icon>
+                    <v-btn :disabled="!to || !from" @click="getRoute" icon>
                       <v-icon>refresh</v-icon>
                     </v-btn>
                     <v-btn @click="updateLocation" icon>
@@ -300,7 +300,7 @@ background: linear-gradient(180deg, rgba(54,98,119,0.8442109265581232) 0%, rgba(
             </v-layout>
           </v-flex>
           <v-flex xs7 :class="$vuetify.breakpoint.smAndDown ? 'mt-4' : 'pl-4'">
-            <Map ref="map" style="height:570px; position: relative" />
+            <Map ref="map" style="height: 558px; position: relative" />
           </v-flex>
         </v-layout>
       </v-container>

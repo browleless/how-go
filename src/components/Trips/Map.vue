@@ -2,7 +2,7 @@
   <div>
     <l-map ref="map" style="position: absolute" :center="center" :zoom="zoom">
       <l-tile-layer :url="url" :attribution="attribution"/>
-      <l-marker v-for="marker in markers" :lat-lng="marker" :key="marker.id">
+      <l-marker v-for="marker in markers" :icon="marker.icon" :lat-lng="marker.latLng" :key="marker.id">
       </l-marker>
     </l-map>
   </div>
@@ -60,8 +60,28 @@ export default {
         lineJoin: "round"
       })
       this.polyline.addTo(map)
-      this.markers.push(points[0])
-      this.markers.push(points[points.length - 1])
+      this.markers.push({
+        latLng: points[0],
+        icon: new L.Icon({
+          iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+          shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+          popupAnchor: [1, -34],
+          shadowSize: [41, 41]
+        })
+      })
+      this.markers.push({
+        latLng: points[points.length - 1],
+        icon: new L.Icon({
+          iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+          shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+          popupAnchor: [1, -34],
+          shadowSize: [41, 41]
+        })
+      })
       map.fitBounds(points)
     },
     removePolyline() {
