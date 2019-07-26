@@ -500,6 +500,13 @@ export default {
     scheduleDelete: false,
     editMode: false
   }),
+  watch: {
+    showEvent(val) {
+      if (!val) {
+        this.editMode = false
+      }
+    }
+  },
   computed: {
     // convert the list of events into a map of lists keyed by date
     eventsMap() {
@@ -656,9 +663,9 @@ export default {
           overrides: [{ method: "popup", minutes: 0 }]
         }
       });
-      this.clear()
       await this.updateCalendar()
       this.$refs.calendar.scrollToTime(this.startTime)
+      this.clear()
       console.log("Event Added");
     },
     async updateEvent() {
