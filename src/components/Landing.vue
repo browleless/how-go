@@ -165,10 +165,10 @@ background: linear-gradient(180deg, rgba(54,98,119,0.8442109265581232) 0%, rgba(
                     <template v-slot:extension>
                       <v-layout wrap column>
                         <v-flex>
-                          <place-autocomplete-field solo class="mb-3" v-model="fromStr" @autocomplete-select="fillFrom" icon="place" placeholder="Enter your current location" api-key="AIzaSyAhSv9zWvisiTXRPRw6K8AE0DCmrRMpQcU"></place-autocomplete-field>
+                          <place-autocomplete-field clearable solo class="mb-3" v-model="fromStr" @autocomplete-select="fillFrom" icon="place" placeholder="Enter your current location" api-key="AIzaSyAhSv9zWvisiTXRPRw6K8AE0DCmrRMpQcU"></place-autocomplete-field>
                         </v-flex>
                         <v-flex>
-                          <place-autocomplete-field solo class="mb-3" icon="flag" @autocomplete-select="fillTo" placeholder="Enter your destination's location" api-key="AIzaSyAhSv9zWvisiTXRPRw6K8AE0DCmrRMpQcU"></place-autocomplete-field>
+                          <place-autocomplete-field clearable solo class="mb-3" icon="flag" @autocomplete-select="fillTo" placeholder="Enter your destination's location" api-key="AIzaSyAhSv9zWvisiTXRPRw6K8AE0DCmrRMpQcU"></place-autocomplete-field>
                         </v-flex>
                         <v-flex v-if="to && from">
                           <v-radio-group class="pt-1 pb-1" v-model="sortBy" hide-details row>
