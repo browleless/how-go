@@ -7,6 +7,40 @@
       </v-tabs>
     </v-flex>
 
+    <v-layout v-if="places.length <= 1" row wrap>
+      <v-flex xs12 sm10 md8 offset-sm1 offset-md2>
+        <v-card>
+          <v-container>
+            <v-layout row wrap>
+              <v-flex mb-5 pb-2 xs12 text-xs-center>
+                <img height="150px" width="150px" src="https://png.pngtree.com/svg/20170731/61fedc708b.svg">
+              </v-flex>
+              <v-flex pb-3 display-1 font-weight-medium xs12 text-xs-center>
+                No Events Found
+              </v-flex>
+              <v-flex subheading xs12 text-xs-center>
+                There seems to be no events for 
+                <span v-if="$store.state.today">today, or the events have already passed.</span>
+                <span v-if="$store.state.tomorrow">tomorrow.</span>
+              </v-flex>
+              <v-flex subheading xs12 text-xs-center>
+                Without events, HowGo's functionality is limited.
+              </v-flex>
+              <v-flex pb-5 subheading xs12 text-xs-center>
+                Start by managing your events and login again to sync!
+              </v-flex>
+              <v-flex xs12 text-xs-center>
+                <v-btn @click="$router.push('/reminders')" class="info">
+                  Manage Events
+                </v-btn>
+              </v-flex>
+            </v-layout>
+          </v-container>
+        </v-card>
+      </v-flex>
+    </v-layout>
+
+    <div v-if="places.length > 1">
     <v-layout row wrap v-for="place in places.slice(1)" :key="place.id" class="mb-3">
       <v-flex xs12 sm10 md8 offset-sm1 offset-md2>
         <v-card>
@@ -27,6 +61,7 @@
         </v-card>
       </v-flex>
     </v-layout>
+    </div>
   </v-container>
 </template>
 
