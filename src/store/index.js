@@ -140,6 +140,14 @@ const actions = {
                         })
                     commit('setTodayEvents', eventInfo)
                 } else {
+                    await client.search(events.result.items[i].location, { size: 'huge' })
+                        .then(images => {
+                            eventInfo['imageUrl'] = images[0].url
+                            console.log('images success', images)
+                        })
+                        .catch(err => {
+                            console.log(err)
+                        })
                     commit('setTmrwEvents', eventInfo)
                 }
             }
