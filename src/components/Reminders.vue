@@ -57,7 +57,7 @@
                 <v-layout mt-1 row wrap>
                   <v-flex pa-0 class="text-xs-right">
                     <v-btn
-                      :disabled="this.minutesEarlierBy === '' || this.scheduledOnce === true"
+                      :disabled="$v.minutesEarlierBy.$invalid || this.scheduledOnce === true"
                       type="submit"
                       class="info"
                     >Submit</v-btn>
@@ -281,12 +281,12 @@
         </v-card-title>
         <v-card-text v-if="!editMode" class="pt-0">
           <v-layout row wrap>
-            <v-flex pb-3 xs12>
+            <v-flex xs12>
               <v-layout row wrap>
                 <v-flex align-self-center xs1>
                   <v-icon>info</v-icon>
                 </v-flex>
-                <v-flex ml-1 font-weight-medium headline>
+                <v-flex xs11 pl-1 font-weight-medium headline>
                   {{ selectedEvent.title }}
                   <div class="subheading">
                     {{ new Date(selectedEvent.date.split('-')[0], selectedEvent.date.split('-')[1] - 1, selectedEvent.date.split('-')[2]).toString().slice(0, 11).replace(' ', ', ') }}
@@ -298,22 +298,22 @@
                 </v-flex>
               </v-layout>
             </v-flex>
-            <v-flex v-if="selectedEvent.description" pb-3 xs12>
+            <v-flex v-if="selectedEvent.description" pt-3 xs12>
               <v-layout row wrap>
-                <v-flex xs1>
+                <v-flex align-self-center xs1>
                   <v-icon>list</v-icon>
                 </v-flex>
-                <v-flex ml-1 subheading>
+                <v-flex xs11 pl-1 subheading>
                   {{ selectedEvent.description }}
                 </v-flex>
               </v-layout>
             </v-flex>
-            <v-flex xs12>
+            <v-flex v-if="selectedEvent.location" pt-3 xs12>
               <v-layout row wrap>
-                <v-flex xs1>
+                <v-flex align-self-center xs1>
                   <v-icon>location_on</v-icon>
                 </v-flex>
-                <v-flex ml-1 subheading>
+                <v-flex xs11 pl-1 subheading>
                   {{ selectedEvent.location }}
                 </v-flex>
               </v-layout>
@@ -947,6 +947,9 @@ export default {
                 // console.log("reminder start time " + event.start.dateTime)
                 // console.log("reminder end time " + event.end.dateTime)
 
+                const capitalize = words =>
+                  words
+                  .replace(/\w\S*/g, word => word.charAt(0) + word.slice(1).toLowerCase())
                 const time =
                   nextEvent.date +
                   "T" +
@@ -958,7 +961,7 @@ export default {
                 await this.$gAuth.gapi.client.calendar.events.insert({
                   calendarId: "primary",
                   summary: "Attention! Leave NOW!",
-                  description: currEvent.name,
+                  description: 'Leave ' + capitalize(currEvent.name) + ' for ' + capitalize(nextEvent.name),
                   start: {
                     dateTime: time,
                     timeZone: "Asia/Singapore"
