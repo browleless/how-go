@@ -231,14 +231,8 @@ export default {
               tripInfo['cost'] = routes[k].fare
             }
             const capitalize = words =>
-                words
-                  .split(" ")
-                  .map(
-                    word =>
-                      word.substring(0, 1).toUpperCase() +
-                      word.substring(1).toLowerCase()
-                  )
-                  .join(" ");
+                  words
+                  .replace(/\w\S*/g, word => word.charAt(0) + word.slice(1).toLowerCase())
             tripInfo['origin'] = capitalize(this.currEvent.name)
             tripInfo['destination'] = capitalize(this.nextEvent.name)
             var fullInstructions = []

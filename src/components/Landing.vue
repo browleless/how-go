@@ -736,14 +736,8 @@ export default {
             .then(res => {
               var eventInfo = {};
               const capitalize = words =>
-                words
-                  .split(" ")
-                  .map(
-                    word =>
-                      word.substring(0, 1).toUpperCase() +
-                      word.substring(1).toLowerCase()
-                  )
-                  .join(" ");
+                  words
+                  .replace(/\w\S*/g, word => word.charAt(0) + word.slice(1).toLowerCase())
               eventInfo["name"] = capitalize(res.data.GeocodeInfo[0].BUILDINGNAME);
               eventInfo["latlng"] =
                 res.data.GeocodeInfo[0].LATITUDE +
