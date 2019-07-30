@@ -77,7 +77,70 @@ const actions = {
                 commit('setTmrwHome', currUser.address)
                 commit('setUser', currUser)
             })
-            .then(() => {
+            .then(async () => {
+                const endDate = new Date(d.getTime() - (d.getTimezoneOffset() * 60000) + 60000 * 60 * 24).toISOString().slice(0, 10)
+                const events = await gapi.client.calendar.events.list({
+                    calendarId: 'primary',
+                    timeMin: currDate + 'T00:00:00+08:00',
+                    timeMax: endDate + 'T23:59:59+08:00',
+                    orderBy: 'startTime',
+                    singleEvents: 'true'
+                })
+                console.log(events)
+                const GoogleImages = require('google-images')
+                const client = new GoogleImages('010327027899987409234:euxsclkbdw4', 'AIzaSyBPxJ-Fh41K9DiIjVPXz6-n4-c9gXSjlGc')
+                var flag = false
+                for (var i = 0; i < events.result.items.length; i++) {
+                    var eventInfo = {}
+                    if (events.result.items[i].location) {
+                        eventInfo['date'] = events.result.items[i].start.dateTime.slice(0, 10)
+                        eventInfo['startTime'] = events.result.items[i].start.dateTime.slice(11, 19)
+                        var searchVal = events.result.items[i].location
+                        if (!isNaN(searchVal.slice(-6))) {
+                            searchVal = searchVal.slice(-6)
+                        } else if (searchVal.indexOf(',') !== -1) {
+                            searchVal = searchVal.slice(0, searchVal.indexOf(','))
+                        }
+                        await axios.get('https://developers.onemap.sg/commonapi/search?searchVal=' + searchVal + '&returnGeom=Y&getAddrDetails=N&pageNum=1')
+                            .then(res => {
+                                eventInfo['name'] = res.data.results[0].SEARCHVAL
+                                eventInfo['latlng'] = res.data.results[0].LATITUDE + ',' + res.data.results[0].LONGITUDE
+                            })
+                            .catch(err => {
+                                console.log(err)
+                            })
+                        if (eventInfo.date === currDate) {
+                            if (eventInfo.startTime < currTime) {
+                                if (!flag) {
+                                    flag = true
+                                } else {
+                                    commit('shiftTodayHome')
+                                }
+                                commit('setTodayEvents', eventInfo)
+                                continue
+                            }
+                            await client.search(events.result.items[i].location, { size: 'huge' })
+                                .then(images => {
+                                    eventInfo['imageUrl'] = images[0].url
+                                    console.log('images success', images)
+                                })
+                                .catch(err => {
+                                    console.log(err)
+                                })
+                            commit('setTodayEvents', eventInfo)
+                        } else {
+                            await client.search(events.result.items[i].location, { size: 'huge' })
+                                .then(images => {
+                                    eventInfo['imageUrl'] = images[0].url
+                                    console.log('images success', images)
+                                })
+                                .catch(err => {
+                                    console.log(err)
+                                })
+                            commit('setTmrwEvents', eventInfo)
+                        }
+                    }
+                }
                 if (flag) {
                     commit('shiftTodayHome')
                 }
@@ -89,69 +152,6 @@ const actions = {
                 }
                 commit('setLoading', true)
             })
-        const endDate = new Date(d.getTime() - (d.getTimezoneOffset() * 60000) + 60000 * 60 * 24).toISOString().slice(0, 10)
-        const events = await gapi.client.calendar.events.list({
-            calendarId: 'primary',
-            timeMin: currDate + 'T00:00:00+08:00',
-            timeMax: endDate + 'T23:59:59+08:00',
-            orderBy: 'startTime',
-            singleEvents: 'true'
-        })
-        console.log(events)
-        const GoogleImages = require('google-images')
-        const client = new GoogleImages('010327027899987409234:euxsclkbdw4', 'AIzaSyBPxJ-Fh41K9DiIjVPXz6-n4-c9gXSjlGc')
-        var flag = false
-        for (var i = 0; i < events.result.items.length; i++) {
-            var eventInfo = {}
-            if (events.result.items[i].location) {
-                eventInfo['date'] = events.result.items[i].start.dateTime.slice(0, 10)
-                eventInfo['startTime'] = events.result.items[i].start.dateTime.slice(11, 19)
-                var searchVal = events.result.items[i].location
-                if (!isNaN(searchVal.slice(-6))) {
-                    searchVal = searchVal.slice(-6)
-                } else if (searchVal.indexOf(',') !== -1) {
-                    searchVal = searchVal.slice(0, searchVal.indexOf(','))
-                }
-                await axios.get('https://developers.onemap.sg/commonapi/search?searchVal=' + searchVal + '&returnGeom=Y&getAddrDetails=N&pageNum=1')
-                    .then(res => {
-                        eventInfo['name'] = res.data.results[0].SEARCHVAL
-                        eventInfo['latlng'] = res.data.results[0].LATITUDE + ',' + res.data.results[0].LONGITUDE
-                    })
-                    .catch(err => {
-                        console.log(err)
-                    })
-                if (eventInfo.date === currDate) {
-                    if (eventInfo.startTime < currTime) {
-                        if (!flag) {
-                            flag = true
-                        } else {
-                            commit('shiftTodayHome')
-                        }
-                        commit('setTodayEvents', eventInfo)
-                        continue
-                    }
-                    await client.search(events.result.items[i].location, { size: 'huge' })
-                        .then(images => {
-                            eventInfo['imageUrl'] = images[0].url
-                            console.log('images success', images)
-                        })
-                        .catch(err => {
-                            console.log(err)
-                        })
-                    commit('setTodayEvents', eventInfo)
-                } else {
-                    await client.search(events.result.items[i].location, { size: 'huge' })
-                        .then(images => {
-                            eventInfo['imageUrl'] = images[0].url
-                            console.log('images success', images)
-                        })
-                        .catch(err => {
-                            console.log(err)
-                        })
-                    commit('setTmrwEvents', eventInfo)
-                }
-            }
-        }
     }
 }
 
