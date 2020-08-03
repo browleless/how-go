@@ -1,29 +1,11 @@
 # how-go
 
-## Project setup
-```
-npm install
-```
+HowGo is an automated route planner made with Vue.js and Firebase, showing you how to get to your locations punctually. Sync your Google Account by logging in, plan your calendar events and schedule the reminders.
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+To view the live site, click on this <a href="https://how-go-243507.firebaseapp.com">link.</a> (Places API is not responsive as API key is invalid)
 
-### Compiles and minifies for production
-```
-npm run build
-```
+Alternatively, click on the image below to watch the video demonstration.
 
-### Run your tests
-```
-npm run test
-```
+<br/>
 
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+[![HowGo Demo](https://i.ibb.co/6BYwTWH/howgo-thumbnail.jpg)](https://www.youtube.com/watch?v=Yt6YfzFW_Gk "HowGo Demo")
